@@ -811,15 +811,18 @@ with st.sidebar:
             
             # === HELPER: RESET AXIS LIMITS ===
             def reset_fig4_limits():
-                st.session_state.sb_y_limit_norm = 3 # Default 10^3 for Normalized
-                st.session_state.sb_y_limit_abs = -10
-                st.session_state.sb_x_limit = 60 # Default X limit
+                st.session_state.sb_y_limit_norm = 3    # Default 10^3 for Normalized
+                st.session_state.sb_y_limit_abs = -10   # Default 10^-10 for Absolute
+                st.session_state.sb_x_limit = 60        # Default X limit
 
             st.markdown("#### Plot Type")
+            # Initialize default state for plot type if missing
+            if "sb_fig4_plot_type" not in st.session_state:
+                st.session_state.sb_fig4_plot_type = "Normalized Error"
+
             fig4_plot_type = st.radio(
                 "Plot Type", 
                 ["Normalized Error", "Absolute Error"], 
-                index=0, 
                 key="sb_fig4_plot_type", 
                 on_change=reset_fig4_limits,
                 label_visibility="collapsed"
@@ -827,14 +830,37 @@ with st.sidebar:
             
             st.markdown("#### Plot Limits")
             col_ax1, col_ax2 = st.columns(2)
+            
+            # FIX 1: Handle X-Limit State
+            if "sb_x_limit" not in st.session_state:
+                st.session_state.sb_x_limit = 60
+                
             with col_ax1:
-                x_limit = st.number_input("X-Axis Limit (Steps)", 20, 500, 60, 10, key="sb_x_limit")
+                # Removed 'value=60' argument. The widget now relies solely on st.session_state.sb_x_limit
+                x_limit = st.number_input("X-Axis Limit (Steps)", min_value=20, max_value=500, step=10, key="sb_x_limit")
+            
+            # FIX 2: Handle Y-Limit State
             with col_ax2:
                 if fig4_plot_type == "Normalized Error":
-                    y_limit_exp = st.number_input("Y-Axis Max (10^x)", 0, 5, 3, 1, key="sb_y_limit_norm", help="Set the upper limit exponent (e.g. 3 means 10^3 = 1000)")
+                    if "sb_y_limit_norm" not in st.session_state:
+                        st.session_state.sb_y_limit_norm = 3
+                    
+                    y_limit_exp = st.number_input(
+                        "Y-Axis Max (10^x)", 
+                        min_value=0, max_value=5, step=1, 
+                        key="sb_y_limit_norm", 
+                        help="Set the upper limit exponent (e.g. 3 means 10^3 = 1000)"
+                    )
                 else:
-                    y_limit_exp = st.number_input("Y-Axis Min (10^x)", -16, -1, -10, 1, key="sb_y_limit_abs", help="Set the lower limit exponent (e.g. -10 means 10^-10)")
-            
+                    if "sb_y_limit_abs" not in st.session_state:
+                        st.session_state.sb_y_limit_abs = -10
+
+                    y_limit_exp = st.number_input(
+                        "Y-Axis Min (10^x)", 
+                        min_value=-16, max_value=-1, step=1, 
+                        key="sb_y_limit_abs", 
+                        help="Set the lower limit exponent (e.g. -10 means 10^-10)"
+                    )
             
         # === DYNAMIC BUTTON STATE LOGIC ===
         scen_tuple = tuple([(s['mod'], s['ic']) for s in scenario_inputs])
