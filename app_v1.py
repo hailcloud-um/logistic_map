@@ -178,7 +178,7 @@ st.set_page_config(
 st.markdown("""
 <style>
     [data-testid="stSidebar"] {
-        min-width: 320px !important;
+        min-width: 400px !important;
     }
 </style>
 """, unsafe_allow_html=True)
