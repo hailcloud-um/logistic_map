@@ -15,7 +15,7 @@ from io import BytesIO
 import base64
 from datetime import datetime
 import pandas as pd
-from logistic_map_simulator_v1.0 import LogisticMapSimulator
+from logistic_map_simulator_v1 import LogisticMapSimulator
 from streamlit_js_eval import streamlit_js_eval
 from sim_data import PRECALC_DATA
 from scipy.stats import gaussian_kde
