@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the associated paper as follows."
+authors:
+  - family-names: "Aksoy"
+    given-names: "Altug"
+title: "A Monte Carlo approach to understanding the impacts of initial-condition uncertainty, model uncertainty, and simulation variability on the predictability of chaotic systems: Perspectives from the one-dimensional logistic map"
+preferred-citation:
+  type: article
+  authors:
+    - family-names: "Aksoy"
+      given-names: "Altug"
+  title: "A Monte Carlo approach to understanding the impacts of initial-condition uncertainty, model uncertainty, and simulation variability on the predictability of chaotic systems: Perspectives from the one-dimensional logistic map"
+  journal: "Chaos"
+  volume: 34
+  issue: 1
+  year: 2024
+  month: 1
+  doi: "10.1063/5.0181705"
+  start: "011102"
