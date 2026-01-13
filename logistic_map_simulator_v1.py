@@ -2,8 +2,19 @@ import numpy as np
 from scipy.stats import gaussian_kde
 import time
 
+"""
+Logistic Map Simulator - Core Engine
+Author: Altug Aksoy
+Affiliation: CIMAS/Rosenstiel School, University of Miami & NOAA/AOML/HRD
+Citation: Aksoy, A. (2024). Chaos, 34, 011102. https://doi.org/10.1063/5.0181705
+
+Description:
+    Backend logic for simulating the 1D logistic map. Handles deterministic trajectories,
+    ensemble generation, statistical analysis (mean/median/mode), and bifurcation calculations.
+"""
+
 class LogisticMapSimulator:
-    """Main logistic map simulation engine (Optimized v2.1)"""
+    """Main logistic map simulation engine."""
     
     REGIME_DEFAULTS = {
         'Chaotic': {
@@ -37,7 +48,7 @@ class LogisticMapSimulator:
                        ensemble_enabled, ensemble_size, init_val_pert, param_pert, ensemble_stat):
         """
         Run the logistic map simulation (Vectorized).
-        Updated to calculate Trajectories of Initial Statistics.
+        Calculates Truth, Deterministic Model, and Ensemble trajectories.
         """
         # Initialize result dictionary
         results = {
@@ -45,11 +56,11 @@ class LogisticMapSimulator:
             'x_model_det': np.zeros(num_steps),
             'x_model_stat': np.zeros(num_steps),
             'ensemble_mean': np.zeros(num_steps),
-            'ensemble_median': np.zeros(num_steps), # Explicitly init
-            'ensemble_mode': np.zeros(num_steps),   # Explicitly init
+            'ensemble_median': np.zeros(num_steps), 
+            'ensemble_mode': np.zeros(num_steps),   
             'ensemble_std': np.zeros(num_steps),
             'x_absdiff_stat': np.zeros(num_steps),
-            # New fields for separate trajectories
+            # Fields for separate trajectories from initial statistics
             'x_traj_mean': np.zeros(num_steps),
             'x_traj_median': np.zeros(num_steps),
             'x_traj_mode': np.zeros(num_steps),
@@ -79,11 +90,11 @@ class LogisticMapSimulator:
         r_ens = r_model + (np.random.randn(ensemble_size) * param_pert)
         x_ens = x0_model + (np.random.randn(ensemble_size) * init_val_pert)
         
-        # --- NEW: Calculate Initial Statistics and run their specific trajectories ---
+        # Calculate Initial Statistics and run their specific trajectories
         init_mean = np.mean(x_ens)
         init_median = np.median(x_ens)
         
-        # Simple mode est for initial cluster
+        # Simple mode estimation for initial cluster
         try:
             kde_init = gaussian_kde(x_ens)
             x_grid_init = np.linspace(x_ens.min(), x_ens.max(), 200)
@@ -116,24 +127,22 @@ class LogisticMapSimulator:
         results['x_model_full'] = x_full.T  # Transpose to (members, steps)
 
         # 4. Compute Statistics (Vectorized across axis 1)
-        # These are the "Average of Trajectories" (Correct Ensemble Stats)
         results['ensemble_mean'] = np.mean(x_full, axis=1)
         results['ensemble_median'] = np.median(x_full, axis=1)
         results['ensemble_std'] = np.std(x_full, axis=1)
         
-        # --- CHANGED: Calculate 10th and 90th percentiles for consistency with the paper ---
+        # Calculate 10th and 90th percentiles for consistency with the paper
         results['x_model_p10'] = np.percentile(x_full, 10, axis=1)
         results['x_model_p90'] = np.percentile(x_full, 90, axis=1)
         
-        # Keep min/max just in case needed elsewhere, but they won't be used for the main plot range
+        # Keep min/max just in case needed elsewhere
         results['x_model_min'] = np.min(x_full, axis=1)
         results['x_model_max'] = np.max(x_full, axis=1)
         
         results['x_spread'] = results['ensemble_std']
 
-        # Calculate Ensemble Mode (expensive, so kept as before)
+        # Calculate Ensemble Mode
         modes = np.zeros(num_steps)
-        # Always calculate mode for the new tab comparison
         for t in range(num_steps):
             try:
                 data = x_full[t, :]
@@ -161,7 +170,7 @@ class LogisticMapSimulator:
         # Compute min/max/percentile error bounds
         diff_matrix = np.abs(x_full - results['x_true'][:, np.newaxis])
         
-        # --- CHANGED: Calculate 10th and 90th percentiles for Error as well ---
+        # Calculate 10th and 90th percentiles for Error
         results['x_absdiff_p10'] = np.percentile(diff_matrix, 10, axis=1)
         results['x_absdiff_p90'] = np.percentile(diff_matrix, 90, axis=1)
         
@@ -187,7 +196,7 @@ class LogisticMapSimulator:
         # Initialize x (can start random or uniform)
         x_vec = np.ones(num_r) * 0.5
         
-        # Discard transients (Vectorized)
+        # Discard transients
         for _ in range(iterations_discard):
             x_vec = self._step(x_vec, r_vec)
             
@@ -198,8 +207,7 @@ class LogisticMapSimulator:
         for _ in range(num_iterations):
             x_vec = self._step(x_vec, r_vec)
             
-            # Store data (filtering for view window happens here or post-process)
-            # Masking here saves memory if view window is small
+            # Store data (filter for view window)
             mask = (x_vec >= x_min) & (x_vec <= x_max)
             if np.any(mask):
                 r_list.append(r_vec[mask])
@@ -225,7 +233,7 @@ class LogisticMapSimulator:
         # Reuse the scatter calculation first
         res = self.compute_bifurcation_diagram(r_min, r_max, num_r, x_min, x_max, num_x, num_iterations, iterations_discard)
         
-        start_time = time.time() # Timer just for histogram part
+        start_time = time.time() 
         
         # Create bins
         r_bins = np.linspace(r_min, r_max, num_r + 1)
@@ -241,19 +249,15 @@ class LogisticMapSimulator:
             'r_bins': r_bins,
             'x_bins': x_bins,
             'computation_time': res['computation_time'] + (time.time() - start_time),
-            'r_array': res['r_array'], # Keep raw data for point plotting if needed
+            'r_array': res['r_array'], 
             'x_array': res['x_array']
         }
     
     def _compute_single_predictability_limit(self, r, model_bias, ic_bias, ensemble_size, n_iterations, threshold, metric='median'):
-        """Compute single predictability limit (Scientifically Corrected)."""
+        """Compute single predictability limit (Averaged over attractor)."""
         
-        # === CORRECTION: Sample x0_base uniformly to get global average ===
-        # Previously hardcoded to 0.1
+        # Sample x0_base uniformly to get global average
         abs_diffs_collection = np.zeros((ensemble_size, n_iterations))
-        
-        # Note: To exactly match the paper, check if they fixed x0 or averaged x0.
-        # Assuming "Average Predictability" implies averaging over x0:
         
         for m in range(ensemble_size):
             # Sample a new random location on the attractor for every member
@@ -282,7 +286,6 @@ class LogisticMapSimulator:
         elif metric == 'median':
             metric_curve = np.median(abs_diffs_collection, axis=0)
         else: # mode
-            # simplified mode
             metric_curve = np.median(abs_diffs_collection, axis=0)
 
         # Find threshold crossing
