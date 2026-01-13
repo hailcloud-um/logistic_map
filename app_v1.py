@@ -1,10 +1,14 @@
 """
 Logistic Map Simulator - Streamlit Web Application v1.0
-Ported from MATLAB App Designer (v2.0)
-Author: Altug Aksoy (adapted for Python/Streamlit)
-Citation: Aksoy et al., Chaos, 2024
+Author: Altug Aksoy
+Affiliation: CIMAS/Rosenstiel School, University of Miami & NOAA/AOML/HRD
+Citation: Aksoy, A. (2024). Chaos, 34, 011102. https://doi.org/10.1063/5.0181705
 
-Finalized: 9 January 2026
+Description:
+    Frontend interface for the Logistic Map Simulator. Provides interactive tools for
+    exploring bifurcation, dynamics, predictability limits, and error growth comparisons.
+    
+    Deployed via Streamlit.
 """
 
 import streamlit as st
@@ -145,21 +149,21 @@ if current_tab in [0, 1, 2, 3]:
     </style>
     """, unsafe_allow_html=True)
 else:
-    # === GREEN NAVIGATION STYLE FOR INFO BUTTONS ===
+    # === BLACK NAVIGATION STYLE FOR INFO BUTTONS ===
     st.markdown("""
     <style>
-        /* PRIMARY (Selected): White Background, GREEN Text/Border */
+        /* PRIMARY (Selected): White Background, BLACK Text/Border */
         [data-testid="stSidebar"] button[kind="primary"] {
             background-color: #ffffff !important;
-            color: #228B22 !important;
-            border: 3px solid #228B22 !important;
+            color: #000000 !important;
+            border: 3px solid #000000 !important;
             font-weight: 600;
         }
-        /* SECONDARY (Unselected): Green Background, White Text */
+        /* SECONDARY (Unselected): Black Background, White Text */
         [data-testid="stSidebar"] button[kind="secondary"] {
-            background-color: #228B22 !important;
+            background-color: #000000 !important;
             color: white !important;
-            border: 3px solid #228B22 !important;
+            border: 3px solid #000000 !important;
             font-weight: 600;
         }
     </style>
@@ -178,7 +182,7 @@ st.set_page_config(
 st.markdown("""
 <style>
     [data-testid="stSidebar"] {
-        min-width: 400px !important;
+        min-width: 320px !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -487,7 +491,7 @@ with st.sidebar:
                 # 1. Primary Statistic Selection
                 central_stat = st.selectbox("Primary Statistic (for Main Plots)", ["Mean", "Median", "Mode"], index=0)
 
-                # === NEW: Spread Selection Switch ===
+                # Spread Selection Switch
                 st.markdown("<div style='margin-top: 8px;'></div>", unsafe_allow_html=True)
                 ens_spread_type = st.radio(
                     "Ensemble Range Display",
@@ -638,7 +642,7 @@ with st.sidebar:
 
             # Section 1: Select r values (Two Columns)
             st.markdown("") # Small spacer
-            section_label("Select model parameter (r) values:") # Style updated
+            section_label("Select model parameter (r) values:") 
             
             selected_r_indices = []
             
@@ -653,7 +657,7 @@ with st.sidebar:
 
             # Section 2: Select model bias values (Two Columns)
             st.markdown("") # Small spacer
-            section_label("Select model bias (Δr) values:") # Style updated
+            section_label("Select model bias (Δr) values:") 
             
             selected_mb_indices = []
             
@@ -811,18 +815,15 @@ with st.sidebar:
             
             # === HELPER: RESET AXIS LIMITS ===
             def reset_fig4_limits():
-                st.session_state.sb_y_limit_norm = 3    # Default 10^3 for Normalized
-                st.session_state.sb_y_limit_abs = -10   # Default 10^-10 for Absolute
-                st.session_state.sb_x_limit = 60        # Default X limit
+                st.session_state.sb_y_limit_norm = 3 # Default 10^3 for Normalized
+                st.session_state.sb_y_limit_abs = -10
+                st.session_state.sb_x_limit = 60 # Default X limit
 
             st.markdown("#### Plot Type")
-            # Initialize default state for plot type if missing
-            if "sb_fig4_plot_type" not in st.session_state:
-                st.session_state.sb_fig4_plot_type = "Normalized Error"
-
             fig4_plot_type = st.radio(
                 "Plot Type", 
                 ["Normalized Error", "Absolute Error"], 
+                index=0, 
                 key="sb_fig4_plot_type", 
                 on_change=reset_fig4_limits,
                 label_visibility="collapsed"
@@ -830,37 +831,14 @@ with st.sidebar:
             
             st.markdown("#### Plot Limits")
             col_ax1, col_ax2 = st.columns(2)
-            
-            # FIX 1: Handle X-Limit State
-            if "sb_x_limit" not in st.session_state:
-                st.session_state.sb_x_limit = 60
-                
             with col_ax1:
-                # Removed 'value=60' argument. The widget now relies solely on st.session_state.sb_x_limit
-                x_limit = st.number_input("X-Axis Limit (Steps)", min_value=20, max_value=500, step=10, key="sb_x_limit")
-            
-            # FIX 2: Handle Y-Limit State
+                x_limit = st.number_input("X-Axis Limit (Steps)", 20, 500, 60, 10, key="sb_x_limit")
             with col_ax2:
                 if fig4_plot_type == "Normalized Error":
-                    if "sb_y_limit_norm" not in st.session_state:
-                        st.session_state.sb_y_limit_norm = 3
-                    
-                    y_limit_exp = st.number_input(
-                        "Y-Axis Max (10^x)", 
-                        min_value=0, max_value=5, step=1, 
-                        key="sb_y_limit_norm", 
-                        help="Set the upper limit exponent (e.g. 3 means 10^3 = 1000)"
-                    )
+                    y_limit_exp = st.number_input("Y-Axis Max (10^x)", 0, 5, 3, 1, key="sb_y_limit_norm", help="Set the upper limit exponent (e.g. 3 means 10^3 = 1000)")
                 else:
-                    if "sb_y_limit_abs" not in st.session_state:
-                        st.session_state.sb_y_limit_abs = -10
-
-                    y_limit_exp = st.number_input(
-                        "Y-Axis Min (10^x)", 
-                        min_value=-16, max_value=-1, step=1, 
-                        key="sb_y_limit_abs", 
-                        help="Set the lower limit exponent (e.g. -10 means 10^-10)"
-                    )
+                    y_limit_exp = st.number_input("Y-Axis Min (10^x)", -16, -1, -10, 1, key="sb_y_limit_abs", help="Set the lower limit exponent (e.g. -10 means 10^-10)")
+            
             
         # === DYNAMIC BUTTON STATE LOGIC ===
         scen_tuple = tuple([(s['mod'], s['ic']) for s in scenario_inputs])
@@ -891,7 +869,7 @@ with st.sidebar:
                 ens_n = 50
                 thresh = 0.1
                 
-                # FIX 1: Run over multiple Initial Conditions (ICs)
+                # Run over multiple Initial Conditions (ICs)
                 ic_list = np.linspace(0.2, 0.8, 10) 
                 
                 sim_results = []
@@ -909,7 +887,7 @@ with st.sidebar:
                     # Loop over different starting positions
                     for x_start in ic_list:
                         
-                        # FIX 2 & 3: Apply Bias and Correct Spread
+                        # Apply Bias and Correct Spread
                         res = simulator.run_simulation(
                             r_true=r_base, x0_true=x_start, 
                             r_model=r_base + s['mod'], x0_model=x_start + s['ic'],
@@ -967,21 +945,32 @@ with st.sidebar:
         with st.container(border=True):
             st.markdown("### Information Guide")
             
+            # Check active states
+            is_intro = (st.session_state.info_sub_tab == 'intro')
+            is_usage = (st.session_state.info_sub_tab == 'usage')
+            is_about = (st.session_state.info_sub_tab == 'about')
+
             # Button 1: General Intro
-            type_intro = 'primary' if st.session_state.info_sub_tab == 'intro' else 'secondary'
-            if st.button("General Introduction to Chaos", type=type_intro, width='stretch', key="btn_info_intro"):
+            label_intro = "General Introduction to Chaos" + (" →" if is_intro else "")
+            type_intro = 'primary' if is_intro else 'secondary'
+            
+            if st.button(label_intro, type=type_intro, width='stretch', key="btn_info_intro"):
                 st.session_state.info_sub_tab = 'intro'
                 st.rerun()
 
             # Button 2: How to Use
-            type_usage = 'primary' if st.session_state.info_sub_tab == 'usage' else 'secondary'
-            if st.button("How to Use This Site", type=type_usage, width='stretch', key="btn_info_usage"):
+            label_usage = "How to Use This Site" + (" →" if is_usage else "")
+            type_usage = 'primary' if is_usage else 'secondary'
+            
+            if st.button(label_usage, type=type_usage, width='stretch', key="btn_info_usage"):
                 st.session_state.info_sub_tab = 'usage'
                 st.rerun()
 
             # Button 3: About
-            type_about = 'primary' if st.session_state.info_sub_tab == 'about' else 'secondary'
-            if st.button("About", type=type_about, width='stretch', key="btn_info_about"):
+            label_about = "About" + (" →" if is_about else "")
+            type_about = 'primary' if is_about else 'secondary'
+            
+            if st.button(label_about, type=type_about, width='stretch', key="btn_info_about"):
                 st.session_state.info_sub_tab = 'about'
                 st.rerun()
 
@@ -1102,7 +1091,7 @@ elif selected_tab == 1:
             col_single, = st.columns(1)
             cols = [col_single, col_single, col_single, col_single]
         else:
-            # CHANGED: First two plots stacked vertically (Full Width)
+            # First two plots stacked vertically (Full Width)
             row1, = st.columns(1)
             row2, = st.columns(1)
             
@@ -1117,13 +1106,12 @@ elif selected_tab == 1:
         # === DYNAMIC RECALCULATION (Instant Update) ===
         # (Logic handled above)
         
-        # CHANGED: Time array now starts at 1
+        # Time array now starts at 1
         time = np.arange(1, len(results['x_true']) + 1)
         
         # --- 1. TIME SERIES (STANDARD) ---
         if show_time_series:
             with cols[col_idx]:
-                # === RESTORED DEFINITION LINE ===
                 # Use wider figure size (12, 4) for stacked layout, unless mobile
                 figsize_ts = (12, 4) if not is_mobile_layout() else get_plot_figsize()
                 
@@ -1173,7 +1161,6 @@ elif selected_tab == 1:
         # --- 2. TIME SERIES DIFF (STANDARD) ---
         if show_time_series_diff:
             with cols[col_idx]:
-                # === RESTORED DEFINITION LINE ===
                 # Use wider figure size (12, 4) for stacked layout
                 figsize_ts = (12, 4) if not is_mobile_layout() else get_plot_figsize()
                 
@@ -1317,7 +1304,7 @@ elif selected_tab == 1:
                 st.pyplot(fig_ssd)
                 col_idx += 1
 
-        # === 5. NEW SECTION: ENSEMBLE ANALYSIS (APPENDED) ===
+        # === 5. ENSEMBLE ANALYSIS (APPENDED) ===
         if use_ensemble and 'x_model_full' in results:
             
             # --- Analysis Plot 1: Multi-Metric Time Series ---
@@ -1353,7 +1340,6 @@ elif selected_tab == 1:
             if st.session_state.get('viz_show_traj_mode', False):
                 ax_comp.plot(time, results['x_traj_mode'], color='teal', linestyle='--', linewidth=1.0, label='Det. From Mode')
             
-            # FIX: Updated Y-limit to 1.3 to prevent legend overlap
             ax_comp.set_xlabel('Time Step (i)', fontsize=10, fontweight='bold')
             ax_comp.set_title(f'Ensemble Metrics vs. Deterministic Trajectories', fontsize=11, fontweight='bold')
             ax_comp.set_ylim(-0.05, 1.3)
@@ -1379,7 +1365,7 @@ elif selected_tab == 1:
             for i, t_val in enumerate(times):
                 ax = axes[i]
                 
-                # CHANGED: Convert 1-based slider value to 0-based array index
+                # Convert 1-based slider value to 0-based array index
                 idx = t_val - 1
                 
                 if idx < full_ens_data.shape[1]:
@@ -1395,8 +1381,6 @@ elif selected_tab == 1:
                         vals_to_include.append(results['ensemble_mean'][idx])
                     if st.session_state.get('viz_show_median', False) and 'ensemble_median' in results:
                         vals_to_include.append(results['ensemble_median'][idx])
-                    
-                    # ... (rest of histogram plotting remains similar but protected keys) ...
                     
                     # Determine range
                     all_vals = np.concatenate([np.atleast_1d(v) for v in vals_to_include])
@@ -1415,7 +1399,7 @@ elif selected_tab == 1:
                            label='Ens. Dist.' if i == 0 else None)
                     
                     # === 3. Plot KDE (Conditional) ===
-                    # UPDATED: Only plot if user selected "Yes"
+                    # Only plot if user selected "Yes"
                     if st.session_state.get("viz_show_kde", "Yes") == "Yes":
                         try:
                             kde = gaussian_kde(data_t)
@@ -1431,7 +1415,6 @@ elif selected_tab == 1:
                     if st.session_state.get('viz_show_mean', False) and 'ensemble_mean' in results:
                         ax.axvline(results['ensemble_mean'][idx], color='orange', linewidth=1.0, label='Ens. Mean' if i==0 else "")
                     
-                    # ... (abbreviated, applied same safe access logic) ...
 
                     ax.set_xlabel('State Value Range', fontsize=10, fontweight='bold')    
                     ax.set_title(f"Ens. Histogram at i={t_val}", fontweight='bold')
@@ -1580,7 +1563,7 @@ elif selected_tab == 2:
 
             st.markdown("---")
             
-            # === RESULTS TABLE (only shown after plot is generated) ===
+            # === RESULTS TABLE ===
             st.markdown("### Results Table")
             st.markdown("Predictability limit (iterations) for selected parameter combinations")
             
@@ -1630,7 +1613,7 @@ elif selected_tab == 3:
         # Helper vars
         plot_type = st.session_state.get("sb_fig4_plot_type", "Normalized Error")
         r_used = data['params']['r']
-        # UPDATED: Retrieve the metric used in the calculation
+        # Retrieve the metric used in the calculation
         metric_used = data['params'].get('metric', 'Median')
         
         # Retrieve user-defined limits
@@ -1678,7 +1661,7 @@ elif selected_tab == 3:
                     ax4.plot(time_axis, lower, color=base_color, linewidth=0.5, alpha=0.4)
                     ax4.plot(time_axis, upper, color=base_color, linewidth=0.5, alpha=0.4)
             
-            # UPDATED LABEL: Added back the definition (Delta / Delta_ref)
+            # Label
             ax4.set_ylabel(f"Normalized Error ({metric_used}, $\Delta / \Delta_{{ref}}$)", fontsize=12, fontweight='bold')
             ax4.set_title(f"Comparative Error Growth | r={r_used:.2f}", fontweight='bold')
             
@@ -1707,7 +1690,7 @@ elif selected_tab == 3:
                     ax4.plot(time_axis, lower, color=base_color, linewidth=0.5, alpha=0.4)
                     ax4.plot(time_axis, upper, color=base_color, linewidth=0.5, alpha=0.4)
 
-            # UPDATED LABEL: Dynamic based on Metric
+            # Label
             ax4.set_ylabel(f"Absolute Error ({metric_used})", fontsize=12, fontweight='bold')
             ax4.set_title(f"Absolute Error Growth Comparison | r={r_used:.2f}", fontweight='bold')
             
@@ -1721,7 +1704,7 @@ elif selected_tab == 3:
         ax4.grid(True, which="both", alpha=0.3)
         ax4.set_xlim(1, steps)
 
-        # UPDATED: Add a dummy invisible line so the legend shows the black thin line entry
+        # Add a dummy invisible line so the legend shows the black thin line entry
         ax4.plot([], [], color='k', linewidth=0.5, label='10th/90th Percentiles')
         
         # Legend
