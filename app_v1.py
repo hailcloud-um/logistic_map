@@ -19,6 +19,7 @@ from io import BytesIO
 import base64
 from datetime import datetime
 import pandas as pd
+import gc
 from logistic_map_simulator_v1 import LogisticMapSimulator
 from streamlit_js_eval import streamlit_js_eval
 from sim_data import PRECALC_DATA
@@ -232,12 +233,16 @@ if 'ens_spread_type' not in st.session_state:
 if 'info_sub_tab' not in st.session_state:
     st.session_state.info_sub_tab = "intro"  # Options: 'intro', 'usage', 'about'
 
-
-# === Initialize Checkbox States and Tracker ===
+# Initialize Checkbox States and Tracker
 if 'viz_show_mean' not in st.session_state: st.session_state.viz_show_mean = True
 if 'viz_show_median' not in st.session_state: st.session_state.viz_show_median = False
 if 'viz_show_mode' not in st.session_state: st.session_state.viz_show_mode = False
 if 'last_central_stat' not in st.session_state: st.session_state.last_central_stat = "Mean"
+
+# Initialize cache for heavy plot images to prevent re-rendering on every interaction
+if 'bif_cached_img' not in st.session_state: st.session_state.bif_cached_img = None
+if 'pred_cached_img' not in st.session_state: st.session_state.pred_cached_img = None
+if 'fig4_cached_img' not in st.session_state: st.session_state.fig4_cached_img = None
 
 
 # === VIEWPORT WIDTH DETECTION (JS → Python) ===
@@ -290,6 +295,17 @@ def create_white_based_colormap(base_cmap_name):
     new_colors[transition_idx:] = base_colors[:(n_colors - transition_idx)]
     custom_cmap = LinearSegmentedColormap.from_list(f'white_{base_cmap_name}', new_colors)
     return custom_cmap
+
+
+# === HELPER FUNCTION: CONVERT IMAGE TO STATIC DATA ===
+def get_image_base64(fig):
+    """Converts a matplotlib figure to a base64 string and closes the figure."""
+    buffer = BytesIO()
+    fig.savefig(buffer, format='png', dpi=300, bbox_inches='tight')
+    buffer.seek(0)
+    img_str = base64.b64encode(buffer.read()).decode()
+    plt.close(fig) # Explicitly close to free memory
+    return img_str
 
 
 # === TITLE AND HEADER ===
@@ -352,7 +368,7 @@ with st.sidebar:
             
             x0_bif = st.slider("x₀ (initial condition)", 0.0, 1.0, value=0.5, step=0.01)
             transient_iters = st.number_input("Transient Iterations to Skip", value=200, min_value=50, max_value=500, step=50)
-            plot_iters = st.number_input("Plot Number of Iteration Ater Transient", value=1000, min_value=500, max_value=5000, step=100)
+            plot_iters = st.number_input("Plot Number of Iteration After Transient", value=1000, min_value=500, max_value=5000, step=100)
         
         with st.container(border=True):
             st.markdown("#### Resolution & Display")
@@ -389,6 +405,9 @@ with st.sidebar:
         
         if run_bif_button:
             with st.spinner("Computing bifurcation diagram..."):
+                st.session_state.bif_cached_img = None # Clear old image
+                gc.collect() # Force memory cleanup before heavy calculation
+
                 if show_density:
                     bifurcation_data = simulator.compute_bifurcation_diagram_with_density(
                         r_min=r_min_bif, r_max=r_max_bif, num_r=resolution,
@@ -700,6 +719,7 @@ with st.sidebar:
 
             if plot_button:
                 st.session_state.plot_pred_clicked = True  # Make state persistent
+                st.session_state.pred_cached_img = None  # Clear cache
                 st.session_state.pred_last_params = pred_current_params
                 st.session_state.pred_button_color = 'success'
                 st.rerun()  # Force reload to immediately show the green button
@@ -813,11 +833,16 @@ with st.sidebar:
         with st.container(border=True):
             st.markdown("### Plot Settings")
             
-            # === HELPER: RESET AXIS LIMITS ===
+            # === HELPER: CLEAR CACHE ONLY (For Axis Changes) ===
+            def clear_fig4_cache():
+                st.session_state.fig4_cached_img = None
+
+            # === HELPER: RESET AXIS LIMITS (For Plot Type Switch) ===
             def reset_fig4_limits():
                 st.session_state.sb_y_limit_norm = 3 # Default 10^3 for Normalized
                 st.session_state.sb_y_limit_abs = -10
                 st.session_state.sb_x_limit = 60 # Default X limit
+                st.session_state.fig4_cached_img = None # <--- ALSO CLEAR CACHE
 
             st.markdown("#### Plot Type")
             fig4_plot_type = st.radio(
@@ -825,19 +850,22 @@ with st.sidebar:
                 ["Normalized Error", "Absolute Error"], 
                 index=0, 
                 key="sb_fig4_plot_type", 
-                on_change=reset_fig4_limits,
+                on_change=reset_fig4_limits, # Resets values AND clears cache
                 label_visibility="collapsed"
             )
             
             st.markdown("#### Plot Limits")
             col_ax1, col_ax2 = st.columns(2)
             with col_ax1:
-                x_limit = st.number_input("X-Axis Limit (Steps)", 20, 500, 60, 10, key="sb_x_limit")
+                # ADDED: on_change=clear_fig4_cache
+                x_limit = st.number_input("X-Axis Limit (Steps)", 20, 500, 60, 10, key="sb_x_limit", on_change=clear_fig4_cache)
             with col_ax2:
                 if fig4_plot_type == "Normalized Error":
-                    y_limit_exp = st.number_input("Y-Axis Max (10^x)", 0, 5, 3, 1, key="sb_y_limit_norm", help="Set the upper limit exponent (e.g. 3 means 10^3 = 1000)")
+                    # ADDED: on_change=clear_fig4_cache
+                    y_limit_exp = st.number_input("Y-Axis Max (10^x)", 0, 5, 3, 1, key="sb_y_limit_norm", help="Set the upper limit exponent (e.g. 3 means 10^3 = 1000)", on_change=clear_fig4_cache)
                 else:
-                    y_limit_exp = st.number_input("Y-Axis Min (10^x)", -16, -1, -10, 1, key="sb_y_limit_abs", help="Set the lower limit exponent (e.g. -10 means 10^-10)")
+                    # ADDED: on_change=clear_fig4_cache
+                    y_limit_exp = st.number_input("Y-Axis Min (10^x)", -16, -1, -10, 1, key="sb_y_limit_abs", help="Set the lower limit exponent (e.g. -10 means 10^-10)", on_change=clear_fig4_cache)
             
             
         # === DYNAMIC BUTTON STATE LOGIC ===
@@ -862,6 +890,7 @@ with st.sidebar:
         # 5. Run Button
         if st.button("▶️ Run Comparative Analysis", type=btn_type, width='stretch', on_click=reset_fig4_limits):
             with st.spinner("Running Scenario Simulations..."):
+                st.session_state.fig4_cached_img = None # Clear the cache
                 
                 # --- SIMULATION PARAMETERS ---
                 r_base = r_ref_val
@@ -978,69 +1007,76 @@ with st.sidebar:
 # === MAIN CONTENT AREA ===
 if selected_tab == 0:
     if st.session_state.bifurcation_computed:
-        fig_bif, ax_bif = plt.subplots(figsize=get_bif_figsize(), constrained_layout=True)
-
-        data = st.session_state.bifurcation_data
-        params_used = st.session_state.get('bifurcation_params_used', {})
+        # 1. FAST PATH: Check if we already have a cached image
+        if st.session_state.bif_cached_img is not None:
+            img_base64 = st.session_state.bif_cached_img
+            timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
+            st.markdown(f'<a href="data:image/png;base64,{img_base64}" download="bifurcation_diagram_{timestamp}.png">'
+                        f'<img src="data:image/png;base64,{img_base64}" style="width:100%"/></a>',
+                        unsafe_allow_html=True)
         
-        show_density_used = params_used.get('density', True)
-        colormap_used = params_used.get('colormap', 'turbo')
-        use_power_scale_used = params_used.get('power_scale', True)
-        gamma_used = params_used.get('gamma', 0.2)
-        
-        if show_density_used and 'density_matrix' in data:
-            custom_cmap = create_white_based_colormap(colormap_used)
-            density_data = data['density_matrix'].copy()
-            density_data_nonzero = density_data[density_data > 0]
-            
-            if len(density_data_nonzero) > 0 and use_power_scale_used:
-                vmin = np.percentile(density_data_nonzero, 1)
-                vmax = np.percentile(density_data_nonzero, 99.5)
-                density_masked = np.ma.masked_where(density_data <= 0, density_data)
-                norm = PowerNorm(gamma=gamma_used, vmin=vmin, vmax=vmax)
-                density_label = f'Density (Power Scale γ={gamma_used:.2f})'
-                
-                im = ax_bif.imshow(density_masked, extent=[data['r_bins'][0], data['r_bins'][-1],
-                                   data['x_bins'][0], data['x_bins'][-1]], origin='lower',
-                                   aspect='auto', cmap=custom_cmap, norm=norm, interpolation='bilinear')
-            else:
-                density_label = 'Density'
-                im = ax_bif.imshow(density_data, extent=[data['r_bins'][0], data['r_bins'][-1],
-                                   data['x_bins'][0], data['x_bins'][-1]], origin='lower',
-                                   aspect='auto', cmap=custom_cmap, interpolation='bilinear')
-            
-            cbar = plt.colorbar(im, ax=ax_bif, label=density_label)
-            cbar.ax.tick_params(labelsize=10)
+        # 2. SLOW PATH: Generate the figure (Runs only once after computation)
         else:
-            ax_bif.plot(data['r_array'], data['x_array'], ',', color='#32b8c6', alpha=0.5, markersize=1)
-        
-        r_min_used = params_used.get('r_min', 2.5)
-        r_max_used = params_used.get('r_max', 4.0)
-        resolution_used = params_used.get('resolution', 500)
-        plot_iters_used = params_used.get('plot', 100)
-        
-        ax_bif.set_xlim(r_min_used, r_max_used)
-        ax_bif.set_ylim(0, 1)
-        ax_bif.set_xlabel('r (Model Parameter)', fontsize=13, fontweight='bold')
-        ax_bif.set_ylabel('x (Time Series)', fontsize=13, fontweight='bold')
-        
-        title_suffix = f" (Power Scale γ={gamma_used:.2f})" if (show_density_used and use_power_scale_used) else ""
-        ax_bif.set_title(f'Bifurcation Diagram{title_suffix}', fontsize=14, fontweight='bold')
-        ax_bif.grid(True, alpha=0.2)
-        ax_bif.text(0.02, 0.02, f'© {datetime.now().year} Altug Aksoy', transform=ax_bif.transAxes,
-            fontsize=8, ha='left', va='bottom', style='italic', color='gray',
-            bbox=dict(facecolor='white', alpha=0.5, edgecolor='none'))
-        
-        # Save figure with meaningful filename and base64 encoding
-        timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
-        buffer = BytesIO()
-        fig_bif.savefig(buffer, format='png', dpi=300, bbox_inches='tight')
-        buffer.seek(0)
-        img_base64 = base64.b64encode(buffer.read()).decode()
-        st.markdown(f'<a href="data:image/png;base64,{img_base64}" download="bifurcation_diagram_{timestamp}.png">'
-                    f'<img src="data:image/png;base64,{img_base64}" style="width:100%"/></a>',
-                    unsafe_allow_html=True)
-        plt.close()
+            fig_bif, ax_bif = plt.subplots(figsize=get_bif_figsize(), constrained_layout=True)
+
+            data = st.session_state.bifurcation_data
+            params_used = st.session_state.get('bifurcation_params_used', {})
+            
+            show_density_used = params_used.get('density', True)
+            colormap_used = params_used.get('colormap', 'turbo')
+            use_power_scale_used = params_used.get('power_scale', True)
+            gamma_used = params_used.get('gamma', 0.2)
+            
+            if show_density_used and 'density_matrix' in data:
+                custom_cmap = create_white_based_colormap(colormap_used)
+                density_data = data['density_matrix'].copy()
+                density_data_nonzero = density_data[density_data > 0]
+                
+                if len(density_data_nonzero) > 0 and use_power_scale_used:
+                    vmin = np.percentile(density_data_nonzero, 1)
+                    vmax = np.percentile(density_data_nonzero, 99.5)
+                    density_masked = np.ma.masked_where(density_data <= 0, density_data)
+                    norm = PowerNorm(gamma=gamma_used, vmin=vmin, vmax=vmax)
+                    density_label = f'Density (Power Scale γ={gamma_used:.2f})'
+                    
+                    im = ax_bif.imshow(density_masked, extent=[data['r_bins'][0], data['r_bins'][-1],
+                                    data['x_bins'][0], data['x_bins'][-1]], origin='lower',
+                                    aspect='auto', cmap=custom_cmap, norm=norm, interpolation='bilinear')
+                else:
+                    density_label = 'Density'
+                    im = ax_bif.imshow(density_data, extent=[data['r_bins'][0], data['r_bins'][-1],
+                                    data['x_bins'][0], data['x_bins'][-1]], origin='lower',
+                                    aspect='auto', cmap=custom_cmap, interpolation='bilinear')
+                
+                cbar = plt.colorbar(im, ax=ax_bif, label=density_label)
+                cbar.ax.tick_params(labelsize=10)
+            else:
+                ax_bif.plot(data['r_array'], data['x_array'], ',', color='#32b8c6', alpha=0.5, markersize=1)
+            
+            r_min_used = params_used.get('r_min', 2.5)
+            r_max_used = params_used.get('r_max', 4.0)
+            
+            ax_bif.set_xlim(r_min_used, r_max_used)
+            ax_bif.set_ylim(0, 1)
+            ax_bif.set_xlabel('r (Model Parameter)', fontsize=13, fontweight='bold')
+            ax_bif.set_ylabel('x (Time Series)', fontsize=13, fontweight='bold')
+            
+            title_suffix = f" (Power Scale γ={gamma_used:.2f})" if (show_density_used and use_power_scale_used) else ""
+            ax_bif.set_title(f'Bifurcation Diagram{title_suffix}', fontsize=14, fontweight='bold')
+            ax_bif.grid(True, alpha=0.2)
+            ax_bif.text(0.02, 0.02, f'© {datetime.now().year} Altug Aksoy', transform=ax_bif.transAxes,
+                fontsize=8, ha='left', va='bottom', style='italic', color='gray',
+                bbox=dict(facecolor='white', alpha=0.5, edgecolor='none'))
+
+            # 3. SAVE TO CACHE (This is the new part)
+            img_base64 = get_image_base64(fig_bif)
+            st.session_state.bif_cached_img = img_base64
+            
+            # 4. DISPLAY THE NEWLY GENERATED IMAGE
+            timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
+            st.markdown(f'<a href="data:image/png;base64,{img_base64}" download="bifurcation_diagram_{timestamp}.png">'
+                        f'<img src="data:image/png;base64,{img_base64}" style="width:100%"/></a>',
+                        unsafe_allow_html=True)
 
     else:
         st.info("""**Configure parameters in the sidebar and click "▶️ Compute Bifurcation"**""")
@@ -1156,6 +1192,7 @@ elif selected_tab == 1:
                     fontsize=8, ha='right', va='bottom', style='italic', color='gray',
                     bbox=dict(facecolor='white', alpha=0.5, edgecolor='none'))
                 st.pyplot(fig_ts)
+                plt.close(fig_ts)
                 col_idx += 1
         
         # --- 2. TIME SERIES DIFF (STANDARD) ---
@@ -1204,6 +1241,7 @@ elif selected_tab == 1:
                     fontsize=8, ha='left', va='bottom', style='italic', color='gray',
                     bbox=dict(facecolor='white', alpha=0.5, edgecolor='none'))
                 st.pyplot(fig_tsd)
+                plt.close(fig_tsd)
                 col_idx += 1
         
         # --- 3. STATE-SPACE (FOLDED ATTRACTORS) ---
@@ -1272,6 +1310,7 @@ elif selected_tab == 1:
                     fontsize=8, ha='center', va='bottom', style='italic', color='gray',
                     bbox=dict(facecolor='white', alpha=0.5, edgecolor='none'))
                 st.pyplot(fig_ss)
+                plt.close(fig_ss)
                 col_idx += 1
         
         # --- 4. STATE-SPACE DIFF (STANDARD) ---
@@ -1302,6 +1341,7 @@ elif selected_tab == 1:
                     fontsize=8, ha='right', va='bottom', style='italic', color='gray',
                     bbox=dict(facecolor='white', alpha=0.5, edgecolor='none'))
                 st.pyplot(fig_ssd)
+                plt.close(fig_ssd)
                 col_idx += 1
 
         # === 5. ENSEMBLE ANALYSIS (APPENDED) ===
@@ -1349,6 +1389,7 @@ elif selected_tab == 1:
                 fontsize=8, ha='right', va='bottom', style='italic', color='gray',
                 bbox=dict(facecolor='white', alpha=0.5, edgecolor='none'))
             st.pyplot(fig_comp)
+            plt.close(fig_comp)
             
             # --- Analysis Plot 2: Histograms ---
             from matplotlib.ticker import MaxNLocator
@@ -1431,6 +1472,7 @@ elif selected_tab == 1:
                                  facecolor='white', framealpha=0.9, ncol=2)
 
             st.pyplot(fig_hist)
+            plt.close(fig_hist)
 
         elif use_ensemble and 'x_model_full' not in results:
             st.warning("⚠️ Ensemble simulation enabled. Please click **'▶️ Run Simulation'** to generate the ensemble data.")
@@ -1442,285 +1484,249 @@ elif selected_tab == 1:
 elif selected_tab == 2:
     # === HANDLE GENERATE PLOT BUTTON ===
     if st.session_state.get('plot_pred_clicked', False):
-        # Get selections and metric from sidebar
-        selected_r_indices = st.session_state.get('selected_r_indices', [0])
-        selected_mb_indices = st.session_state.get('selected_mb_indices', [0])
-        y_min, y_max = st.session_state.get('pred_y_range', (0, 120))
-        metric = st.session_state.get('pred_ensemble_metric', 'median')
         
-        # Get data
-        pred_data = st.session_state.pred_data
-        r_vals = pred_data['r_values']
-        ic_vals = pred_data['ic_bias_values']
-        dr_vals = pred_data['model_bias_values']
-        
-        # Select surface based on chosen metric
-        surf = pred_data['surface'][metric] if isinstance(pred_data['surface'], dict) else pred_data['surface']
-        
-        if selected_r_indices and selected_mb_indices:
-            # Create single plot with all selected combinations
-            fig, ax = plt.subplots(figsize=(12, 6))
+        # 1. FAST PATH: Check if we already have a cached image
+        if st.session_state.pred_cached_img is not None:
+            img_base64 = st.session_state.pred_cached_img
+            timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
+            st.markdown(f'<a href="data:image/png;base64,{img_base64}" download="predictability_limit_{timestamp}.png">'
+                        f'<img src="data:image/png;base64,{img_base64}" style="width:100%"/></a>',
+                        unsafe_allow_html=True)
             
-            # Define colors for different Δr values (map to number of Δr choices)
-            num_dr = len(selected_mb_indices)
-            if num_dr == 1:
-                colors = ['#1f77b4']  # Blue
-            elif num_dr == 2:
-                colors = ['#1f77b4', '#ff7f0e']  # Blue, Orange
-            elif num_dr == 3:
-                colors = ['#1f77b4', '#ff7f0e', '#2ca02c']  # Blue, Orange, Green
-            elif num_dr == 4:
-                colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728']  # Blue, Orange, Green, Red
-            elif num_dr == 5:
-                colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd']  # Add Purple
-            else:
-                colors = plt.cm.tab20(np.linspace(0, 1, num_dr))
+        # 2. SLOW PATH: Generate the figure (Runs only once)
+        else:
+            # Get selections and metric from sidebar
+            selected_r_indices = st.session_state.get('selected_r_indices', [0])
+            selected_mb_indices = st.session_state.get('selected_mb_indices', [0])
+            y_min, y_max = st.session_state.get('pred_y_range', (0, 120))
+            metric = st.session_state.get('pred_ensemble_metric', 'median')
             
-            # Define line styles for different r values
-            line_styles = ['-', '--', '-.', ':', (0, (3, 1, 1, 1))]  # Solid, dashed, dash-dot, dotted, custom
+            # Get data
+            pred_data = st.session_state.pred_data
+            r_vals = pred_data['r_values']
+            ic_vals = pred_data['ic_bias_values']
+            dr_vals = pred_data['model_bias_values']
             
-            # Plot all selected (r, Δr) combinations on same graph (lines only, no markers)
-            for j_dr, i_dr in enumerate(selected_mb_indices):
+            # Select surface based on chosen metric
+            surf = pred_data['surface'][metric] if isinstance(pred_data['surface'], dict) else pred_data['surface']
+            
+            if selected_r_indices and selected_mb_indices:
+                # Create single plot with all selected combinations
+                fig, ax = plt.subplots(figsize=(12, 6))
+                
+                # --- [START OF YOUR EXISTING PLOTTING LOGIC] ---
+                # (Keep all your existing loops, line styling, legends, and text code here)
+                
+                # Define colors for different Δr values
+                num_dr = len(selected_mb_indices)
+                if num_dr == 1: colors = ['#1f77b4']
+                elif num_dr == 2: colors = ['#1f77b4', '#ff7f0e']
+                elif num_dr == 3: colors = ['#1f77b4', '#ff7f0e', '#2ca02c']
+                elif num_dr == 4: colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728']
+                elif num_dr == 5: colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd']
+                else: colors = plt.cm.tab20(np.linspace(0, 1, num_dr))
+                
+                line_styles = ['-', '--', '-.', ':', (0, (3, 1, 1, 1))]
+
+                # Plot Loop
+                for j_dr, i_dr in enumerate(selected_mb_indices):
+                    for k_r, i_r in enumerate(selected_r_indices):
+                        r_val = r_vals[i_r]
+                        dr_val = dr_vals[i_dr]
+                        pred_limits = surf[i_r, i_dr, :]
+                        pred_limits_reversed = pred_limits[::-1]
+                        
+                        linestyle = line_styles[k_r % len(line_styles)]
+                        color = colors[j_dr] if isinstance(colors, list) else colors[j_dr]
+                        
+                        ax.plot(range(len(ic_vals)), pred_limits_reversed, linewidth=2.5,
+                                color=color, linestyle=linestyle)
+                
+                # Formatting
+                ax.set_xlabel('Initial Condition Uncertainty', fontsize=12, fontweight='bold')
+                ax.set_ylabel('Predictability Limit', fontsize=12, fontweight='bold')
+                ax.set_title(f'Predictability Limits (Ensemble Metric: {metric.capitalize()})',
+                            fontsize=14, fontweight='bold')
+                ax.set_ylim(y_min, y_max)
+                ax.grid(True, alpha=0.3)
+                
+                # X-Ticks
+                ax.set_xticks(range(0, len(ic_vals), max(1, len(ic_vals)//10)))
+                tick_indices = ax.get_xticks().astype(int)
+                ax.set_xticklabels([f'{ic_vals[len(ic_vals)-1-i]:.1e}' if i < len(ic_vals) else ''
+                                for i in tick_indices], rotation=45, ha='right')
+                
+                # Legends (Keep your specific custom legend code)
+                left_legend_handles = []
                 for k_r, i_r in enumerate(selected_r_indices):
                     r_val = r_vals[i_r]
-                    dr_val = dr_vals[i_dr]
-                    pred_limits = surf[i_r, i_dr, :]
-                    
-                    # Reverse pred_limits to match reversed x-axis (1e-3 to 1e-13)
-                    pred_limits_reversed = pred_limits[::-1]
-                    
                     linestyle = line_styles[k_r % len(line_styles)]
-                    color = colors[j_dr] if isinstance(colors, list) else colors[j_dr]
-                    
-                    ax.plot(range(len(ic_vals)), pred_limits_reversed, linewidth=2.5,
-                           color=color, linestyle=linestyle)
-            
-            ax.set_xlabel('Initial Condition Uncertainty', fontsize=12, fontweight='bold')
-            ax.set_ylabel('Predictability Limit', fontsize=12, fontweight='bold')
-            ax.set_title(f'Predictability Limits (Ensemble Metric: {metric.capitalize()})',
-                        fontsize=14, fontweight='bold')
-            ax.set_ylim(y_min, y_max)
-            ax.grid(True, alpha=0.3)
-            
-            # Label x-axis with IC values (reversed: 1e-3 to 1e-13)
-            ax.set_xticks(range(0, len(ic_vals), max(1, len(ic_vals)//10)))
-            tick_indices = ax.get_xticks().astype(int)
-            ax.set_xticklabels([f'{ic_vals[len(ic_vals)-1-i]:.1e}' if i < len(ic_vals) else ''
-                               for i in tick_indices], rotation=45, ha='right')
-            
-            # === CREATE TWO SIDE-BY-SIDE LEGENDS ===
-            # Left legend: r values with line styles (gray color)
-            left_legend_handles = []
-            for k_r, i_r in enumerate(selected_r_indices):
-                r_val = r_vals[i_r]
-                linestyle = line_styles[k_r % len(line_styles)]
-                left_legend_handles.append(
-                    plt.Line2D([0], [0], color='gray', linewidth=2.5, linestyle=linestyle, 
-                              label=f'r = {r_val:.2f}')
-                )
-            
-            # Right legend: Δr values with colors (solid line)
-            right_legend_handles = []
-            for j_dr, i_dr in enumerate(selected_mb_indices):
-                dr_val = dr_vals[i_dr]
-                color = colors[j_dr] if isinstance(colors, list) else colors[j_dr]
-                right_legend_handles.append(
-                    plt.Line2D([0], [0], color=color, linewidth=2.5, linestyle='-', 
-                              label=f'Δr = {dr_val:.1e}')
-                )
-            
-            # Place legends side by side in upper left
-            left_legend = ax.legend(handles=left_legend_handles, loc='upper left', 
-                                   fontsize=10, title='r Values', title_fontsize=10,
-                                   frameon=True, fancybox=True, shadow=False)
-            left_legend.get_title().set_fontweight('bold')
-            ax.add_artist(left_legend)
-            
-            right_legend = ax.legend(handles=right_legend_handles, loc='upper left', 
-                                    fontsize=10, title='Δr Values', title_fontsize=10,
-                                    frameon=True, fancybox=True, shadow=False,
-                                    bbox_to_anchor=(0.125, 1.0))
-            right_legend.get_title().set_fontweight('bold')
-            
-            # Add copyright text
-            ax.text(0.99, 0.02, f'© {datetime.now().year} Altug Aksoy', transform=ax.transAxes,
-                fontsize=8, ha='right', va='bottom', style='italic', color='gray',
-                bbox=dict(facecolor='white', alpha=0.5, edgecolor='none'))
-            
-            # Save figure with meaningful filename and base64 encoding
-            timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
-            buffer = BytesIO()
-            fig.savefig(buffer, format='png', dpi=300, bbox_inches='tight')
-            buffer.seek(0)
-            img_base64 = base64.b64encode(buffer.read()).decode()
-            st.markdown(f'<a href="data:image/png;base64,{img_base64}" download="predictability_limit_{timestamp}.png">'
-                       f'<img src="data:image/png;base64,{img_base64}" style="width:100%"/></a>',
-                       unsafe_allow_html=True)
-            plt.close(fig)
-
-            # Mark computation as complete (turns run button green)
-            st.session_state.button_color = 'success'
-
-            st.markdown("---")
-            
-            # === RESULTS TABLE ===
-            st.markdown("### Results Table")
-            st.markdown("Predictability limit (iterations) for selected parameter combinations")
-            
-            # Build table for selected combinations only
-            table_data = []
-            for i_r in selected_r_indices:
-                for i_dr in selected_mb_indices:
-                    r_val = r_vals[i_r]
+                    left_legend_handles.append(plt.Line2D([0], [0], color='gray', linewidth=2.5, linestyle=linestyle, label=f'r = {r_val:.2f}'))
+                
+                right_legend_handles = []
+                for j_dr, i_dr in enumerate(selected_mb_indices):
                     dr_val = dr_vals[i_dr]
-                    pred_limits_original = surf[i_r, i_dr, :]
-                    
-                    row = {
-                        'r': f'{r_val:.2f}',
-                        'Δr': f'{dr_val:.1e}',
-                    }
-                    
-                    # Add IC bias columns in reversed order (reverse the predictability values too)
-                    pred_limits_reversed = pred_limits_original[::-1]
-                    for display_idx in range(len(ic_vals)):
-                        ic_val = ic_vals[len(ic_vals) - 1 - display_idx]
-                        col_name = f'Δx₀={ic_val:.1e}'
-                        row[col_name] = int(pred_limits_reversed[display_idx])
-                    
-                    table_data.append(row)
-            
-            df_display = pd.DataFrame(table_data)
-            st.dataframe(df_display, width='stretch', hide_index=True)
-            
-            # === DOWNLOAD CSV ===
-            csv_string = df_display.to_csv(index=False)
-            st.download_button(
-                label="📥 Download Results as CSV",
-                data=csv_string,
-                file_name=f"predictability_results_{datetime.now().strftime('%Y-%m-%d_%H-%M')}.csv",
-                mime="text/csv"
-            )
-        else:
-            st.warning("⚠️ Please select at least one r/Δr combination in the sidebar.")
+                    color = colors[j_dr] if isinstance(colors, list) else colors[j_dr]
+                    right_legend_handles.append(plt.Line2D([0], [0], color=color, linewidth=2.5, linestyle='-', label=f'Δr = {dr_val:.1e}'))
+                
+                left_legend = ax.legend(handles=left_legend_handles, loc='upper left', fontsize=10, title='r Values', title_fontsize=10, frameon=True)
+                left_legend.get_title().set_fontweight('bold')
+                ax.add_artist(left_legend)
+                
+                right_legend = ax.legend(handles=right_legend_handles, loc='upper left', fontsize=10, title='Δr Values', title_fontsize=10, frameon=True, bbox_to_anchor=(0.125, 1.0))
+                right_legend.get_title().set_fontweight('bold')
+                
+                ax.text(0.99, 0.02, f'© {datetime.now().year} Altug Aksoy', transform=ax.transAxes,
+                    fontsize=8, ha='right', va='bottom', style='italic', color='gray',
+                    bbox=dict(facecolor='white', alpha=0.5, edgecolor='none'))
+                
+                # --- [END OF YOUR EXISTING PLOTTING LOGIC] ---
+
+                # 3. CACHE AND DISPLAY (New Logic)
+                img_base64 = get_image_base64(fig)
+                st.session_state.pred_cached_img = img_base64
+                
+                timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
+                st.markdown(f'<a href="data:image/png;base64,{img_base64}" download="predictability_limit_{timestamp}.png">'
+                            f'<img src="data:image/png;base64,{img_base64}" style="width:100%"/></a>',
+                            unsafe_allow_html=True)
+                
+                # Note: The Table and CSV Download code has been completely removed.
+                
+            else:
+                st.warning("⚠️ Please select at least one r/Δr combination in the sidebar.")
     else:
         st.info("""**Configure parameters in the sidebar and click "▶️ Generate Plot"**""")
 
 
 elif selected_tab == 3:
     if st.session_state.get('fig4_ran', False) and 'fig4_data' in st.session_state:
-        data = st.session_state.fig4_data
         
-        # Helper vars
-        plot_type = st.session_state.get("sb_fig4_plot_type", "Normalized Error")
-        r_used = data['params']['r']
-        # Retrieve the metric used in the calculation
-        metric_used = data['params'].get('metric', 'Median')
-        
-        # Retrieve user-defined limits
-        user_xlim = data['params'].get('xlim', 60)
-        
-        # Read Y-limit directly from session state
-        if plot_type == "Normalized Error":
-            user_ylim_exp = st.session_state.get("sb_y_limit_norm", 3)
-        else:
-            user_ylim_exp = st.session_state.get("sb_y_limit_abs", -10)
-        
-        # Create Plot
-        fig4, ax4 = plt.subplots(figsize=(10, 6))
-        steps = user_xlim 
-        time_axis = np.arange(1, steps + 1)
-        thresh = 0.1
-        
-        # Get Base Reference Metric
-        ref_curve_full = data['ref']['x_absdiff_stat']
-        ref_curve = np.maximum(ref_curve_full[:steps], 1e-16)
-        
-        # --- PLOT LOGIC ---
-        if plot_type == "Normalized Error":
-            # 1. Plot Normalized Threshold
-            norm_thresh_curve = thresh / ref_curve
-            ax4.plot(time_axis, norm_thresh_curve, 'k--', linewidth=1.5, label='Error Threshold', alpha=0.8)
+        # 1. FAST PATH: Check if we already have a cached image
+        if st.session_state.fig4_cached_img is not None:
+            img_base64 = st.session_state.fig4_cached_img
+            st.markdown(f'<img src="data:image/png;base64,{img_base64}" style="width:100%"/>', unsafe_allow_html=True)
             
-            # 2. Plot Scenarios
-            for i, s in enumerate(data['scenarios']):
-                res = data['results'][i]
-                res_curve = res['x_absdiff_stat'][:steps] 
-                norm_curve = res_curve / ref_curve
+        # 2. SLOW PATH: Generate the figure (Runs only once)
+        else:
+            data = st.session_state.fig4_data
+            
+            # Helper vars
+            plot_type = st.session_state.get("sb_fig4_plot_type", "Normalized Error")
+            r_used = data['params']['r']
+            # Retrieve the metric used in the calculation
+            metric_used = data['params'].get('metric', 'Median')
+            
+            # Retrieve user-defined limits
+            user_xlim = data['params'].get('xlim', 60)
+            
+            # Read Y-limit directly from session state
+            if plot_type == "Normalized Error":
+                user_ylim_exp = st.session_state.get("sb_y_limit_norm", 3)
+            else:
+                user_ylim_exp = st.session_state.get("sb_y_limit_abs", -10)
+            
+            # Create Plot
+            fig4, ax4 = plt.subplots(figsize=(10, 6))
+            steps = user_xlim 
+            time_axis = np.arange(1, steps + 1)
+            thresh = 0.1
+            
+            # Get Base Reference Metric
+            ref_curve_full = data['ref']['x_absdiff_stat']
+            ref_curve = np.maximum(ref_curve_full[:steps], 1e-16)
+            
+            # --- [START OF YOUR EXISTING PLOTTING LOGIC] ---
+            if plot_type == "Normalized Error":
+                # 1. Plot Normalized Threshold
+                norm_thresh_curve = thresh / ref_curve
+                ax4.plot(time_axis, norm_thresh_curve, 'k--', linewidth=1.5, label='Error Threshold', alpha=0.8)
                 
-                base_color = s['color']
-                
-                # Plot Metric Line
-                ax4.plot(time_axis, norm_curve, color=base_color, linewidth=2.0, alpha=0.8, 
-                        label=s['label'])
-                
-                # Plot Spread
-                if 'x_absdiff_p10' in res:
-                    lower = (res['x_absdiff_p10'][:steps]) / ref_curve
-                    upper = (res['x_absdiff_p90'][:steps]) / ref_curve
+                # 2. Plot Scenarios
+                for i, s in enumerate(data['scenarios']):
+                    res = data['results'][i]
+                    res_curve = res['x_absdiff_stat'][:steps] 
+                    norm_curve = res_curve / ref_curve
                     
-                    ax4.plot(time_axis, lower, color=base_color, linewidth=0.5, alpha=0.4)
-                    ax4.plot(time_axis, upper, color=base_color, linewidth=0.5, alpha=0.4)
-            
-            # Label
-            ax4.set_ylabel(f"Normalized Error ({metric_used}, $\Delta / \Delta_{{ref}}$)", fontsize=12, fontweight='bold')
-            ax4.set_title(f"Comparative Error Growth | r={r_used:.2f}", fontweight='bold')
-            
-            # Apply Limits: Normalized
-            ax4.set_ylim(bottom=0.01, top=10**user_ylim_exp)
-            
-            legend_loc = 'upper right'
-
-        else:
-            # Absolute Plotting
-            ax4.axhline(thresh, color='k', linestyle='--', linewidth=1.5, label='Threshold (0.1)')
-            
-            for i, s in enumerate(data['scenarios']):
-                res = data['results'][i]
-                res_curve = res['x_absdiff_stat'][:steps]
-                base_color = s['color']
+                    base_color = s['color']
+                    
+                    # Plot Metric Line
+                    ax4.plot(time_axis, norm_curve, color=base_color, linewidth=2.0, alpha=0.8, 
+                            label=s['label'])
+                    
+                    # Plot Spread
+                    if 'x_absdiff_p10' in res:
+                        lower = (res['x_absdiff_p10'][:steps]) / ref_curve
+                        upper = (res['x_absdiff_p90'][:steps]) / ref_curve
+                        
+                        ax4.plot(time_axis, lower, color=base_color, linewidth=0.5, alpha=0.4)
+                        ax4.plot(time_axis, upper, color=base_color, linewidth=0.5, alpha=0.4)
                 
-                # Plot Metric
-                ax4.plot(time_axis, res_curve, color=base_color, linewidth=2.0, alpha=0.8,
-                        label=s['label'])
+                # Label
+                ax4.set_ylabel(f"Normalized Error ({metric_used}, $\Delta / \Delta_{{ref}}$)", fontsize=12, fontweight='bold')
+                ax4.set_title(f"Comparative Error Growth | r={r_used:.2f}", fontweight='bold')
                 
-                # Plot Spread
-                if 'x_absdiff_p10' in res:
-                    lower = res['x_absdiff_p10'][:steps]
-                    upper = res['x_absdiff_p90'][:steps]
-                    ax4.plot(time_axis, lower, color=base_color, linewidth=0.5, alpha=0.4)
-                    ax4.plot(time_axis, upper, color=base_color, linewidth=0.5, alpha=0.4)
+                # Apply Limits: Normalized
+                ax4.set_ylim(bottom=0.01, top=10**user_ylim_exp)
+                
+                legend_loc = 'upper right'
 
-            # Label
-            ax4.set_ylabel(f"Absolute Error ({metric_used})", fontsize=12, fontweight='bold')
-            ax4.set_title(f"Absolute Error Growth Comparison | r={r_used:.2f}", fontweight='bold')
+            else:
+                # Absolute Plotting
+                ax4.axhline(thresh, color='k', linestyle='--', linewidth=1.5, label='Threshold (0.1)')
+                
+                for i, s in enumerate(data['scenarios']):
+                    res = data['results'][i]
+                    res_curve = res['x_absdiff_stat'][:steps]
+                    base_color = s['color']
+                    
+                    # Plot Metric
+                    ax4.plot(time_axis, res_curve, color=base_color, linewidth=2.0, alpha=0.8,
+                            label=s['label'])
+                    
+                    # Plot Spread
+                    if 'x_absdiff_p10' in res:
+                        lower = res['x_absdiff_p10'][:steps]
+                        upper = res['x_absdiff_p90'][:steps]
+                        ax4.plot(time_axis, lower, color=base_color, linewidth=0.5, alpha=0.4)
+                        ax4.plot(time_axis, upper, color=base_color, linewidth=0.5, alpha=0.4)
+
+                # Label
+                ax4.set_ylabel(f"Absolute Error ({metric_used})", fontsize=12, fontweight='bold')
+                ax4.set_title(f"Absolute Error Growth Comparison | r={r_used:.2f}", fontweight='bold')
+                
+                # Apply Limits: Absolute
+                ax4.set_ylim(bottom=10**user_ylim_exp, top=2.0)
+                
+                legend_loc = 'lower right'
+
+            ax4.set_yscale('log')
+            ax4.set_xlabel("Iteration Step", fontsize=12, fontweight='bold')
+            ax4.grid(True, which="both", alpha=0.3)
+            ax4.set_xlim(1, steps)
+
+            # Add a dummy invisible line so the legend shows the black thin line entry
+            ax4.plot([], [], color='k', linewidth=0.5, label='10th/90th Percentiles')
             
-            # Apply Limits: Absolute
-            ax4.set_ylim(bottom=10**user_ylim_exp, top=2.0)
+            # Legend
+            ax4.legend(loc=legend_loc, fontsize=9, framealpha=0.9)
+
+            # Add Copyright text
+            if plot_type == "Normalized Error":
+                cp_x, cp_ha = 0.99, 'right'
+            else:
+                cp_x, cp_ha = 0.02, 'left'
+
+            ax4.text(cp_x, 0.02, f'© {datetime.now().year} Altug Aksoy', transform=ax4.transAxes,
+                fontsize=8, ha=cp_ha, va='bottom', style='italic', color='gray',
+                bbox=dict(facecolor='white', alpha=0.5, edgecolor='none'))
+            # --- [END OF YOUR EXISTING PLOTTING LOGIC] ---
             
-            legend_loc = 'lower right'
-
-        ax4.set_yscale('log')
-        ax4.set_xlabel("Iteration Step", fontsize=12, fontweight='bold')
-        ax4.grid(True, which="both", alpha=0.3)
-        ax4.set_xlim(1, steps)
-
-        # Add a dummy invisible line so the legend shows the black thin line entry
-        ax4.plot([], [], color='k', linewidth=0.5, label='10th/90th Percentiles')
-        
-        # Legend
-        ax4.legend(loc=legend_loc, fontsize=9, framealpha=0.9)
-
-        # Add Copyright text
-        if plot_type == "Normalized Error":
-            cp_x, cp_ha = 0.99, 'right'
-        else:
-            cp_x, cp_ha = 0.02, 'left'
-
-        ax4.text(cp_x, 0.02, f'© {datetime.now().year} Altug Aksoy', transform=ax4.transAxes,
-            fontsize=8, ha=cp_ha, va='bottom', style='italic', color='gray',
-            bbox=dict(facecolor='white', alpha=0.5, edgecolor='none'))
-        
-        st.pyplot(fig4)
+            # 3. CACHE AND DISPLAY (New Logic)
+            img_base64 = get_image_base64(fig4)
+            st.session_state.fig4_cached_img = img_base64
+            
+            st.markdown(f'<img src="data:image/png;base64,{img_base64}" style="width:100%"/>', unsafe_allow_html=True)
 
     else:
         st.info("Configure settings in the sidebar and click **▶️ Run Comparative Analysis**")
