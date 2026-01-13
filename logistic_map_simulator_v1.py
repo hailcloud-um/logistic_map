@@ -1,16 +1,21 @@
 import numpy as np
 from scipy.stats import gaussian_kde
 import time
+import gc
 
 """
-Logistic Map Simulator - Core Engine
+Logistic Map Simulator - Core Engine (Optimized v1.1)
 Author: Altug Aksoy
 Affiliation: CIMAS/Rosenstiel School, University of Miami & NOAA/AOML/HRD
 Citation: Aksoy, A. (2024). Chaos, 34, 011102. https://doi.org/10.1063/5.0181705
 
 Description:
     Backend logic for simulating the 1D logistic map. Handles deterministic trajectories,
-    ensemble generation, statistical analysis (mean/median/mode), and bifurcation calculations.
+    ensemble generation, statistical analysis, and bifurcation calculations.
+    
+    OPTIMIZATION NOTE: 
+    Large data arrays are cast to np.float32 to reduce memory footprint in 
+    Streamlit Session State.
 """
 
 class LogisticMapSimulator:
@@ -124,7 +129,8 @@ class LogisticMapSimulator:
             xmed = self._step(xmed, r_model) # Deterministic evolution of median
             xmod = self._step(xmod, r_model) # Deterministic evolution of mode
             
-        results['x_model_full'] = x_full.T  # Transpose to (members, steps)
+        # MEMORY OPTIMIZATION: Convert large full history to float32
+        results['x_model_full'] = x_full.T.astype(np.float32)
 
         # 4. Compute Statistics (Vectorized across axis 1)
         results['ensemble_mean'] = np.mean(x_full, axis=1)
@@ -222,15 +228,17 @@ class LogisticMapSimulator:
             x_final = np.array([])
 
         return {
-            'r_array': r_final,
-            'x_array': x_final,
+            # MEMORY OPTIMIZATION: Cast to float32
+            'r_array': r_final.astype(np.float32),
+            'x_array': x_final.astype(np.float32),
             'computation_time': time.time() - start_time,
             'num_points': len(r_final)
         }
 
     def compute_bifurcation_diagram_with_density(self, r_min, r_max, num_r, x_min, x_max, num_x, num_iterations, iterations_discard):
         """Vectorized Bifurcation with Density Matrix"""
-        # Reuse the scatter calculation first
+        
+        # 1. Compute raw scatter points
         res = self.compute_bifurcation_diagram(r_min, r_max, num_r, x_min, x_max, num_x, num_iterations, iterations_discard)
         
         start_time = time.time() 
@@ -239,18 +247,25 @@ class LogisticMapSimulator:
         r_bins = np.linspace(r_min, r_max, num_r + 1)
         x_bins = np.linspace(x_min, x_max, num_x + 1)
         
-        # 2D Histogram
+        # 2. Compute 2D Histogram (Density)
         density_matrix, _, _ = np.histogram2d(
             res['r_array'], res['x_array'], bins=[r_bins, x_bins]
         )
         
+        # MEMORY OPTIMIZATION: 
+        # Explicitly delete the large scatter arrays to free RAM immediately.
+        # We don't need them anymore because we have the density matrix.
+        del res['r_array']
+        del res['x_array']
+        gc.collect() 
+
         return {
-            'density_matrix': density_matrix.T, # Transpose for imshow
-            'r_bins': r_bins,
-            'x_bins': x_bins,
-            'computation_time': res['computation_time'] + (time.time() - start_time),
-            'r_array': res['r_array'], 
-            'x_array': res['x_array']
+            # MEMORY OPTIMIZATION: Cast matrix to float32
+            'density_matrix': density_matrix.T.astype(np.float32),
+            'r_bins': r_bins.astype(np.float32),
+            'x_bins': x_bins.astype(np.float32),
+            'computation_time': res['computation_time'] + (time.time() - start_time)
+            # NOTE: r_array and x_array are NOT returned here to save memory
         }
     
     def _compute_single_predictability_limit(self, r, model_bias, ic_bias, ensemble_size, n_iterations, threshold, metric='median'):
