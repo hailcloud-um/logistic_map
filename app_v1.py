@@ -1,5 +1,5 @@
 """
-Logistic Map Simulator - Streamlit Web Application v1.0
+Logistic Map Simulator - Streamlit Web Application v1.3
 Author: Altug Aksoy
 Affiliation: CIMAS/Rosenstiel School, University of Miami & NOAA/AOML/HRD
 Citation: Aksoy, A. (2024). Chaos, 34, 011102. https://doi.org/10.1063/5.0181705
@@ -39,14 +39,11 @@ def is_mobile_layout():
 # === GLOBAL FIGURE SIZE HELPER ===
 def get_plot_figsize():
     if is_mobile_layout():
-        # Slightly narrower but still readable; plots stack vertically
         return (5, 4)
     else:
-        # 4 dynamics plots (2×2 grid)
         return (7, 6)
 
 def get_bif_figsize():
-    # Single bifurcation plot
     if is_mobile_layout():
         return (6, 4.5)
     else:
@@ -125,8 +122,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # 2. Dynamic Sidebar Button Styling (Depends on Active Tab)
-# If we are in Tabs 0, 1, or 2: Primary Button is RED (Alert/Run)
-# If we are in Tab 3 (Info): Primary Button is GREEN (Selected/Nav)
 current_tab = st.session_state.get('selected_tab_index', 0)
 
 if current_tab in [0, 1, 2, 3]:
@@ -231,7 +226,7 @@ if 'fig4_data' not in st.session_state:
 if 'ens_spread_type' not in st.session_state:
     st.session_state.ens_spread_type = "10th-90th Percentiles"
 if 'info_sub_tab' not in st.session_state:
-    st.session_state.info_sub_tab = "intro"  # Options: 'intro', 'usage', 'about'
+    st.session_state.info_sub_tab = "intro" 
 
 # Initialize Checkbox States and Tracker
 if 'viz_show_mean' not in st.session_state: st.session_state.viz_show_mean = True
@@ -239,7 +234,7 @@ if 'viz_show_median' not in st.session_state: st.session_state.viz_show_median =
 if 'viz_show_mode' not in st.session_state: st.session_state.viz_show_mode = False
 if 'last_central_stat' not in st.session_state: st.session_state.last_central_stat = "Mean"
 
-# Initialize cache for heavy plot images to prevent re-rendering on every interaction
+# Initialize cache for image results
 if 'bif_cached_img' not in st.session_state: st.session_state.bif_cached_img = None
 if 'pred_cached_img' not in st.session_state: st.session_state.pred_cached_img = None
 if 'fig4_cached_img' not in st.session_state: st.session_state.fig4_cached_img = None
@@ -256,7 +251,6 @@ if 'viewport_width' not in st.session_state:
         if vw is not None:
             st.session_state.viewport_width = vw
     except Exception as e:
-        # Graceful fallback if JS eval fails
         st.session_state.viewport_width = None
 
 
@@ -299,12 +293,12 @@ def create_white_based_colormap(base_cmap_name):
 
 # === HELPER FUNCTION: CONVERT IMAGE TO STATIC DATA ===
 def get_image_base64(fig):
-    """Converts a matplotlib figure to a base64 string and closes the figure."""
+    """Converts a matplotlib figure to a base64 string and closes the figure to free memory."""
     buffer = BytesIO()
     fig.savefig(buffer, format='png', dpi=300, bbox_inches='tight')
     buffer.seek(0)
     img_str = base64.b64encode(buffer.read()).decode()
-    plt.close(fig) # Explicitly close to free memory
+    plt.close(fig) 
     return img_str
 
 
@@ -368,7 +362,7 @@ with st.sidebar:
             
             x0_bif = st.slider("x₀ (initial condition)", 0.0, 1.0, value=0.5, step=0.01)
             transient_iters = st.number_input("Transient Iterations to Skip", value=200, min_value=50, max_value=500, step=50)
-            plot_iters = st.number_input("Plot Number of Iteration After Transient", value=1000, min_value=500, max_value=5000, step=100)
+            plot_iters = st.number_input("Plot Number of Iteration Ater Transient", value=1000, min_value=500, max_value=5000, step=100)
         
         with st.container(border=True):
             st.markdown("#### Resolution & Display")
@@ -405,7 +399,7 @@ with st.sidebar:
         
         if run_bif_button:
             with st.spinner("Computing bifurcation diagram..."):
-                st.session_state.bif_cached_img = None # Clear old image
+                st.session_state.bif_cached_img = None 
                 gc.collect() # Force memory cleanup before heavy calculation
 
                 if show_density:
@@ -523,7 +517,6 @@ with st.sidebar:
                 # === STATE MANAGEMENT ===
                 # Update Session State DIRECTLY before rendering widgets.
                 # This forces the active metric to be True.
-                # Because we update the state here, we MUST NOT pass 'value=' to the checkboxes below.
                 if central_stat == 'Mean': 
                     st.session_state.viz_show_mean = True
                 elif central_stat == 'Median': 
@@ -546,11 +539,8 @@ with st.sidebar:
 
                 st.markdown("<span style='font-size: 14px;'>Metrics to Overlay/Compare:</span>", unsafe_allow_html=True)
                 
-                # Adjusted column ratio
                 col_m1, col_m2 = st.columns([0.35, 0.65])
                 
-                # 2. Checkboxes
-                # We do NOT pass 'value='. Streamlit reads the state we set above automatically.
                 with col_m1:
                     show_ens_mean = st.checkbox("Ens. Mean", key="viz_show_mean", 
                                               disabled=(central_stat == 'Mean'))
@@ -597,7 +587,6 @@ with st.sidebar:
         show_ensemble_spread = use_ensemble
         
         # === PARAMETER PACKAGING ===
-        # 1. Simulation Parameters (Changes turn button RED)
         sim_params = {
             'r_true': r_true, 
             'r_model': r_model, 
@@ -659,28 +648,23 @@ with st.sidebar:
             def section_label(text):
                 st.markdown(f"<p style='font-size: 16px; margin-bottom: 0px;'>{text}</p>", unsafe_allow_html=True)
 
-            # Section 1: Select r values (Two Columns)
-            st.markdown("") # Small spacer
+            # Section 1: Select r values
+            st.markdown("") 
             section_label("Select model parameter (r) values:") 
             
             selected_r_indices = []
-            
-            # Create 2 columns for compact layout
             r_cols = st.columns(2, gap="small", vertical_alignment="center")
             
             for i, r in enumerate(r_values):
-                # Place in left (0) or right (1) column based on index
                 with r_cols[i % 2]:
                     if st.checkbox(f"r = {r:.3f}", value=(i == 0), key=f"r_check_{i}"):
                         selected_r_indices.append(i)
 
-            # Section 2: Select model bias values (Two Columns)
-            st.markdown("") # Small spacer
+            # Section 2: Select model bias values
+            st.markdown("") 
             section_label("Select model bias (Δr) values:") 
             
             selected_mb_indices = []
-            
-            # Create 2 columns for compact layout
             mb_cols = st.columns(2, gap="small", vertical_alignment="center")
             
             for j, mb in enumerate(model_bias_values):
@@ -688,9 +672,8 @@ with st.sidebar:
                     if st.checkbox(f"Δr = {mb:.1e}", value=(j == 0), key=f"mb_check_{j}"):
                         selected_mb_indices.append(j)
 
-            st.markdown("") # Small spacer before button
+            st.markdown("") 
 
-            # Create current params dict
             pred_current_params = {
                 'ensemble_metric': ensemble_metric,
                 'r_indices': selected_r_indices,
@@ -702,10 +685,8 @@ with st.sidebar:
                 st.session_state.pred_button_color = 'normal'
                 st.session_state.plot_pred_clicked = False
             
-            # Determine button color
             pred_button_type = 'secondary' if st.session_state.pred_button_color == 'success' else 'primary'
 
-            # Plot button
             plot_button = st.button(
                 "▶️ Generate Plot",
                 type=pred_button_type,
@@ -713,16 +694,15 @@ with st.sidebar:
                 key="pred_plot_button"
             )
 
-            # Store selections
             st.session_state.selected_r_indices = selected_r_indices
             st.session_state.selected_mb_indices = selected_mb_indices
 
             if plot_button:
-                st.session_state.plot_pred_clicked = True  # Make state persistent
-                st.session_state.pred_cached_img = None  # Clear cache
+                st.session_state.plot_pred_clicked = True 
+                st.session_state.pred_cached_img = None  
                 st.session_state.pred_last_params = pred_current_params
                 st.session_state.pred_button_color = 'success'
-                st.rerun()  # Force reload to immediately show the green button
+                st.rerun() 
 
 
     elif selected_tab == 3:
@@ -740,7 +720,6 @@ with st.sidebar:
             st.markdown("### Reference (Base) Scenario")
             bias_options = [1e-10, 1e-9, 1e-8, 1e-7, 1e-6, 1e-5]
             
-            # Model Error First (Index 0)
             mod_bias_options = [0.0] + bias_options
             ref_mod_bias = st.select_slider(
                 "Reference Model Error (Δr)", 
@@ -750,7 +729,6 @@ with st.sidebar:
                 format_func=lambda x: f"{x:.0e}" if x > 0 else "0.0"
             )
 
-            # IC Error Second (Index 1)
             ref_ic_bias = st.select_slider(
                 "Reference Initial Error (Δx₀)", 
                 options=bias_options, 
@@ -763,30 +741,26 @@ with st.sidebar:
         with st.container(border=True):
             st.markdown("### Additional Scenarios")
             
-            # Dropdown for Additional Samples
             num_additional = st.selectbox(
                 "Number of Additional Scenarios",
                 [1, 2, 3, 4, 5],
-                index=2, # Default = 3 (index 2) -> Total 4 lines
+                index=2, 
                 key="sb_num_samples"
             )
             
-            # --- Dynamic Input Grid ---
-            # Column Headers
             h1, h2 = st.columns(2)
             with h1: st.markdown("<div style='font-size:14px; font-weight:600'>Model Err. (Δr)</div>", unsafe_allow_html=True)
             with h2: st.markdown("<div style='font-size:14px; font-weight:600'>Initial Err. (Δx₀)</div>", unsafe_allow_html=True)
 
             scenario_inputs = []
             
-            # 1. Add Reference Scenario (Always Index 0, Black) - Internally kept, not displayed
+            # Reference Scenario (Hidden from list)
             scenario_inputs.append({
                 'mod': ref_mod_bias,
                 'ic': ref_ic_bias,
                 'color': 'black'
             })
             
-            # Default values for ADDITIONAL rows
             additional_defaults = [
                 (2.5e-5, 1e-6), 
                 (7.5e-5, 1e-6), 
@@ -797,7 +771,6 @@ with st.sidebar:
             
             colors_additional = ['purple', 'green', 'orange', '#1f77b4', '#d62728']
             
-            # Generate Grid for Additional Scenarios
             for i in range(num_additional):
                 c1, c2 = st.columns(2)
                 
@@ -833,16 +806,20 @@ with st.sidebar:
         with st.container(border=True):
             st.markdown("### Plot Settings")
             
-            # === HELPER: CLEAR CACHE ONLY (For Axis Changes) ===
+            # Helper to clear cache when X or Y axis changes
             def clear_fig4_cache():
                 st.session_state.fig4_cached_img = None
 
-            # === HELPER: RESET AXIS LIMITS (For Plot Type Switch) ===
-            def reset_fig4_limits():
+            # Helper to reset Y-limits only when plot type changes
+            def reset_fig4_ylimits():
                 st.session_state.sb_y_limit_norm = 3 # Default 10^3 for Normalized
                 st.session_state.sb_y_limit_abs = -10
-                st.session_state.sb_x_limit = 60 # Default X limit
-                st.session_state.fig4_cached_img = None # <--- ALSO CLEAR CACHE
+                st.session_state.fig4_cached_img = None 
+
+            # Initialize defaults in session_state to avoid widget conflict errors
+            if 'sb_x_limit' not in st.session_state: st.session_state.sb_x_limit = 60
+            if 'sb_y_limit_norm' not in st.session_state: st.session_state.sb_y_limit_norm = 3
+            if 'sb_y_limit_abs' not in st.session_state: st.session_state.sb_y_limit_abs = -10
 
             st.markdown("#### Plot Type")
             fig4_plot_type = st.radio(
@@ -850,22 +827,36 @@ with st.sidebar:
                 ["Normalized Error", "Absolute Error"], 
                 index=0, 
                 key="sb_fig4_plot_type", 
-                on_change=reset_fig4_limits, # Resets values AND clears cache
+                on_change=reset_fig4_ylimits, 
                 label_visibility="collapsed"
             )
             
             st.markdown("#### Plot Limits")
             col_ax1, col_ax2 = st.columns(2)
             with col_ax1:
-                # ADDED: on_change=clear_fig4_cache
-                x_limit = st.number_input("X-Axis Limit (Steps)", 20, 500, 60, 10, key="sb_x_limit", on_change=clear_fig4_cache)
+                x_limit = st.number_input(
+                    "X-Axis Limit (Steps)", 
+                    min_value=20, max_value=500, step=10, 
+                    key="sb_x_limit", 
+                    on_change=clear_fig4_cache
+                )
             with col_ax2:
                 if fig4_plot_type == "Normalized Error":
-                    # ADDED: on_change=clear_fig4_cache
-                    y_limit_exp = st.number_input("Y-Axis Max (10^x)", 0, 5, 3, 1, key="sb_y_limit_norm", help="Set the upper limit exponent (e.g. 3 means 10^3 = 1000)", on_change=clear_fig4_cache)
+                    y_limit_exp = st.number_input(
+                        "Y-Axis Max (10^x)", 
+                        min_value=0, max_value=5, step=1, 
+                        key="sb_y_limit_norm", 
+                        help="Set the upper limit exponent (e.g. 3 means 10^3 = 1000)", 
+                        on_change=clear_fig4_cache
+                    )
                 else:
-                    # ADDED: on_change=clear_fig4_cache
-                    y_limit_exp = st.number_input("Y-Axis Min (10^x)", -16, -1, -10, 1, key="sb_y_limit_abs", help="Set the lower limit exponent (e.g. -10 means 10^-10)", on_change=clear_fig4_cache)
+                    y_limit_exp = st.number_input(
+                        "Y-Axis Min (10^x)", 
+                        min_value=-16, max_value=-1, step=1, 
+                        key="sb_y_limit_abs", 
+                        help="Set the lower limit exponent (e.g. -10 means 10^-10)", 
+                        on_change=clear_fig4_cache
+                    )
             
             
         # === DYNAMIC BUTTON STATE LOGIC ===
@@ -875,8 +866,7 @@ with st.sidebar:
             'r': r_ref_val,
             'scenarios': scen_tuple,
             'xlim': x_limit,
-            #'ylim': y_limit_exp,
-            'metric': fig4_metric # Added metric to params tracking
+            'metric': fig4_metric 
         }
         
         if 'fig4_last_params' not in st.session_state:
@@ -888,9 +878,9 @@ with st.sidebar:
         btn_type = 'secondary' if st.session_state.get('fig4_btn_color') == 'success' else 'primary'
 
         # 5. Run Button
-        if st.button("▶️ Run Comparative Analysis", type=btn_type, width='stretch', on_click=reset_fig4_limits):
+        if st.button("▶️ Run Comparative Analysis", type=btn_type, width='stretch', on_click=reset_fig4_ylimits):
             with st.spinner("Running Scenario Simulations..."):
-                st.session_state.fig4_cached_img = None # Clear the cache
+                st.session_state.fig4_cached_img = None 
                 
                 # --- SIMULATION PARAMETERS ---
                 r_base = r_ref_val
@@ -941,7 +931,6 @@ with st.sidebar:
                     if i == 0: ref_res = avg_res
                     sim_results.append(avg_res)
                     
-                    # Store Plot Metadata
                     scenarios_to_plot.append({
                         'ic': s['ic'],
                         'mod': s['mod'],
@@ -949,7 +938,6 @@ with st.sidebar:
                         'label': f"IC={s['ic']:.1e}, Δr={s['mod']:.1e}"
                     })
 
-                # Store Results
                 st.session_state.fig4_data = {
                     'ref': ref_res,
                     'scenarios': scenarios_to_plot,
@@ -958,7 +946,6 @@ with st.sidebar:
                     'timestamp': datetime.now()
                 }
                 
-                # === UPDATE BUTTON STATE ===
                 st.session_state.fig4_ran = True
                 st.session_state.fig4_last_params = current_fig4_params
                 st.session_state.fig4_btn_color = 'success'
@@ -968,13 +955,11 @@ with st.sidebar:
 
     elif selected_tab == 4:
         # === VERTICAL SPACER ===
-        # Pushes the buttons down to align with the main content header
         st.markdown("<br>" * 12, unsafe_allow_html=True)
 
         with st.container(border=True):
             st.markdown("### Information Guide")
             
-            # Check active states
             is_intro = (st.session_state.info_sub_tab == 'intro')
             is_usage = (st.session_state.info_sub_tab == 'usage')
             is_about = (st.session_state.info_sub_tab == 'about')
@@ -1007,15 +992,12 @@ with st.sidebar:
 # === MAIN CONTENT AREA ===
 if selected_tab == 0:
     if st.session_state.bifurcation_computed:
-        # 1. FAST PATH: Check if we already have a cached image
         if st.session_state.bif_cached_img is not None:
             img_base64 = st.session_state.bif_cached_img
             timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
             st.markdown(f'<a href="data:image/png;base64,{img_base64}" download="bifurcation_diagram_{timestamp}.png">'
                         f'<img src="data:image/png;base64,{img_base64}" style="width:100%"/></a>',
                         unsafe_allow_html=True)
-        
-        # 2. SLOW PATH: Generate the figure (Runs only once after computation)
         else:
             fig_bif, ax_bif = plt.subplots(figsize=get_bif_figsize(), constrained_layout=True)
 
@@ -1068,11 +1050,9 @@ if selected_tab == 0:
                 fontsize=8, ha='left', va='bottom', style='italic', color='gray',
                 bbox=dict(facecolor='white', alpha=0.5, edgecolor='none'))
 
-            # 3. SAVE TO CACHE (This is the new part)
             img_base64 = get_image_base64(fig_bif)
             st.session_state.bif_cached_img = img_base64
             
-            # 4. DISPLAY THE NEWLY GENERATED IMAGE
             timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
             st.markdown(f'<a href="data:image/png;base64,{img_base64}" download="bifurcation_diagram_{timestamp}.png">'
                         f'<img src="data:image/png;base64,{img_base64}" style="width:100%"/></a>',
@@ -1088,80 +1068,55 @@ elif selected_tab == 1:
         timestamp = st.session_state.get('figure_timestamp', datetime.now().strftime("%Y%m%d_%H%M%S"))
         
         # === DYNAMIC STATISTIC SELECTION ===
-        # Select the array based on the current sidebar choice (not the old simulation run)
-        # Note: We fallback to 'Mean' if the key is missing (e.g. single run)
         if use_ensemble:
             stat_key = f'ensemble_{central_stat.lower()}'
             
-            # --- FALLBACK LOGIC ---
-            # If the specific metric (e.g. Median) wasn't computed in the original run,
-            # we must compute it NOW from the full ensemble data if available.
             if stat_key not in results and 'x_model_full' in results:
                 full_data = results['x_model_full']
                 if central_stat == 'Median':
                     results['ensemble_median'] = np.median(full_data, axis=0)
                 elif central_stat == 'Mean':
                     results['ensemble_mean'] = np.mean(full_data, axis=0)
-                # Mode is too complex to compute on-the-fly reliably without scipy.stats.mode on continuous data
-                # So we skip Mode dynamic calc or show warning
             
             if stat_key in results:
                 x_model_dynamic = results[stat_key]
             else:
-                x_model_dynamic = results['x_model_stat'] # Last resort fallback
+                x_model_dynamic = results['x_model_stat'] 
                 if central_stat == 'Mode' and stat_key not in results:
                     st.warning("⚠️ 'Mode' statistic not available in cached data. Please click 'Run Simulation' to compute it.")
         else:
             x_model_dynamic = results['x_model_det']
             
-        # === RECOMPUTE ERROR & PREDICTABILITY DYNAMICALLY ===
-        # This allows instant updates without re-running the simulation
+        # Recalculate errors dynamically
         abs_diff_dynamic = np.abs(x_model_dynamic - results['x_true'])
         
-        # Find new predictability index
         exceeds_dynamic = np.where(abs_diff_dynamic > pred_thresh)[0]
         pred_idx_dynamic = exceeds_dynamic[0] if len(exceeds_dynamic) > 0 else len(results['x_true'])
 
-        # Grid Layout for Standard Plots
         if is_mobile_layout():
             col_single, = st.columns(1)
             cols = [col_single, col_single, col_single, col_single]
         else:
-            # First two plots stacked vertically (Full Width)
             row1, = st.columns(1)
             row2, = st.columns(1)
-            
-            # Remaining plots side-by-side (Half Width)
             col3, col4 = st.columns(2)
-            
-            # Map the plot order to the new layout
             cols = [row1, row2, col3, col4]
 
         col_idx = 0
-        
-        # === DYNAMIC RECALCULATION (Instant Update) ===
-        # (Logic handled above)
-        
-        # Time array now starts at 1
         time = np.arange(1, len(results['x_true']) + 1)
         
-        # --- 1. TIME SERIES (STANDARD) ---
+        # --- 1. TIME SERIES ---
         if show_time_series:
             with cols[col_idx]:
-                # Use wider figure size (12, 4) for stacked layout, unless mobile
                 figsize_ts = (12, 4) if not is_mobile_layout() else get_plot_figsize()
-                
                 fig_ts, ax_ts = plt.subplots(figsize=figsize_ts, constrained_layout=True)
 
-                # === UPDATED: Plot Ensemble Range based on Switch ===
                 if use_ensemble and show_ensemble_spread:
-                    # Logic: Check user switch AND ensure data exists
                     if st.session_state.get('ens_spread_type', "10th-90th Percentiles") == "10th-90th Percentiles" and 'x_model_p10' in results:
                         lower_b = results['x_model_p10']
                         upper_b = results['x_model_p90']
                         lbl_fill = 'Ens. Range (10-90%)'
                     else:
-                        # Fallback to Min/Max (or if user selected Min-Max)
                         lower_b = results.get('x_model_min', results['x_model_stat'])
                         upper_b = results.get('x_model_max', results['x_model_stat'])
                         lbl_fill = 'Ens. Range (Min-Max)'
@@ -1169,16 +1124,12 @@ elif selected_tab == 1:
                     ax_ts.fill_between(time, lower_b, upper_b,
                                       alpha=0.2, color='gray', label=lbl_fill)
                 
-                # Dynamic Pred Limit Line
                 if 0 < pred_idx_dynamic < len(time):
-                    # Shift x by +1 to match 1-based indexing
                     ax_ts.axvline(x=pred_idx_dynamic + 1, color='k', linestyle='--', linewidth=1.0,
                                 label=f'Pred Limit (t={pred_idx_dynamic + 1})', alpha=0.7)
                     
-                # Truth
                 ax_ts.plot(time, results['x_true'], 'b-', linewidth=1.0, label='Truth', alpha=0.8)
                 
-                # Dynamic Model Line
                 label_main = f'Model ({central_stat})' if use_ensemble else 'Model (Single)'
                 ax_ts.plot(time, x_model_dynamic, color='orange', linewidth=1.0, 
                           label=label_main, alpha=0.8)
@@ -1191,22 +1142,19 @@ elif selected_tab == 1:
                 ax_ts.text(0.99, 0.02, f'© {datetime.now().year} Altug Aksoy', transform=ax_ts.transAxes,
                     fontsize=8, ha='right', va='bottom', style='italic', color='gray',
                     bbox=dict(facecolor='white', alpha=0.5, edgecolor='none'))
+                
                 st.pyplot(fig_ts)
-                plt.close(fig_ts)
+                plt.close(fig_ts) 
                 col_idx += 1
         
-        # --- 2. TIME SERIES DIFF (STANDARD) ---
+        # --- 2. TIME SERIES DIFF ---
         if show_time_series_diff:
             with cols[col_idx]:
-                # Use wider figure size (12, 4) for stacked layout
                 figsize_ts = (12, 4) if not is_mobile_layout() else get_plot_figsize()
-                
                 fig_tsd, ax_tsd = plt.subplots(figsize=figsize_ts, constrained_layout=True)
                 
-                # Use dynamic diff
                 abs_diff = abs_diff_dynamic 
 
-                # === UPDATED: Plot Ensemble Range based on Switch ===
                 if use_ensemble and show_ensemble_spread:
                     if st.session_state.get('ens_spread_type', "10th-90th Percentiles") == "10th-90th Percentiles" and 'x_absdiff_p10' in results:
                         lower_b = np.maximum(results['x_absdiff_p10'], 1e-16)
@@ -1221,13 +1169,10 @@ elif selected_tab == 1:
                 
                 ax_tsd.axhline(y=pred_thresh, color='b', linestyle='--', linewidth=1.0, label=' Error Threshold', alpha=0.7)
                 
-                # Dynamic Pred Limit
                 if 0 < pred_idx_dynamic < len(time):
-                    # Shift x by +1 to match 1-based indexing
                     ax_tsd.axvline(x=pred_idx_dynamic + 1, color='k', linestyle='--', linewidth=1.0, 
                                    label=f'Predictability Limit (t={pred_idx_dynamic + 1})', alpha=0.7)
                     
-                # Split curve based on dynamic limit
                 if pred_idx_dynamic > 0:
                     ax_tsd.semilogy(time[:pred_idx_dynamic+1], abs_diff[:pred_idx_dynamic+1], 'g-', linewidth=1.0, label='Good Predictability', alpha=0.8)
                 if pred_idx_dynamic < len(time) - 1:
@@ -1240,16 +1185,16 @@ elif selected_tab == 1:
                 ax_tsd.text(0.02, 0.02, f'© {datetime.now().year} Altug Aksoy', transform=ax_tsd.transAxes,
                     fontsize=8, ha='left', va='bottom', style='italic', color='gray',
                     bbox=dict(facecolor='white', alpha=0.5, edgecolor='none'))
+                
                 st.pyplot(fig_tsd)
-                plt.close(fig_tsd)
+                plt.close(fig_tsd) 
                 col_idx += 1
         
-        # --- 3. STATE-SPACE (FOLDED ATTRACTORS) ---
+        # --- 3. STATE-SPACE ---
         if show_state_space:
             with cols[col_idx]:
                 fig_ss, ax_ss = plt.subplots(figsize=get_plot_figsize(), constrained_layout=True)
                 
-                # Background: Attractors
                 xpara = np.linspace(0, 1, 200)
                 ypara_truth = xpara.copy()
                 ypara_model = xpara.copy()
@@ -1261,11 +1206,9 @@ elif selected_tab == 1:
                 ax_ss.plot(xpara, ypara_truth, 'b-', alpha=0.5, linewidth=1, label=f"Truth (r={r_true:.2f})", zorder=1)
                 ax_ss.plot(xpara, ypara_model, color='orange', linestyle='--', alpha=0.6, linewidth=1, label=f"Model (r={r_model:.2f})", zorder=1)
 
-                # Use Dynamic Model Data
                 x_n = x_model_dynamic[:-iter_diff]
                 x_n1 = x_model_dynamic[iter_diff:]
                 
-                # Color main scatter by time
                 colors = np.arange(len(x_n))
                 scatter = ax_ss.scatter(x_n, x_n1, c=colors, cmap='turbo', s=25, alpha=0.7, 
                                       edgecolors='black', label=f'Ens. Metric: {central_stat}', zorder=2)
@@ -1273,7 +1216,6 @@ elif selected_tab == 1:
                 cbar = plt.colorbar(scatter, ax=ax_ss)
                 cbar.set_label('Iteration Number', fontsize=10)
 
-                # Overlays (Strictly Solid Colors)
                 if use_ensemble:
                     if st.session_state.get('viz_show_mean', False) and central_stat != 'Mean':
                         xm = results.get('ensemble_mean', results['x_model_stat'])
@@ -1309,11 +1251,12 @@ elif selected_tab == 1:
                 ax_ss.text(0.5, 0.02, f'© {datetime.now().year} Altug Aksoy', transform=ax_ss.transAxes,
                     fontsize=8, ha='center', va='bottom', style='italic', color='gray',
                     bbox=dict(facecolor='white', alpha=0.5, edgecolor='none'))
+                
                 st.pyplot(fig_ss)
-                plt.close(fig_ss)
+                plt.close(fig_ss) 
                 col_idx += 1
         
-        # --- 4. STATE-SPACE DIFF (STANDARD) ---
+        # --- 4. STATE-SPACE DIFF ---
         if show_state_space_diff:
             with cols[col_idx]:
                 fig_ssd, ax_ssd = plt.subplots(figsize=get_plot_figsize(), constrained_layout=True)
@@ -1321,7 +1264,6 @@ elif selected_tab == 1:
                 x_n_true = results['x_true'][:-iter_diff]
                 x_n1_true = results['x_true'][iter_diff:]
                 
-                # Use Dynamic Model Data
                 x_n_model = x_model_dynamic[:-iter_diff]
                 x_n1_model = x_model_dynamic[iter_diff:]
                 
@@ -1340,28 +1282,24 @@ elif selected_tab == 1:
                 ax_ssd.text(0.99, 0.02, f'© {datetime.now().year} Altug Aksoy', transform=ax_ssd.transAxes,
                     fontsize=8, ha='right', va='bottom', style='italic', color='gray',
                     bbox=dict(facecolor='white', alpha=0.5, edgecolor='none'))
+                
                 st.pyplot(fig_ssd)
-                plt.close(fig_ssd)
+                plt.close(fig_ssd) 
                 col_idx += 1
 
-        # === 5. ENSEMBLE ANALYSIS (APPENDED) ===
+        # === 5. ENSEMBLE ANALYSIS ===
         if use_ensemble and 'x_model_full' in results:
             
             # --- Analysis Plot 1: Multi-Metric Time Series ---
             fig_comp, ax_comp = plt.subplots(figsize=(12, 4), constrained_layout=True)
             
-            # Truth:
             ax_comp.plot(time, results['x_true'], 'k-', alpha=0.2, linewidth=2.0, label='Truth')
             
-            # Dynamic Pred Limit Line (Added)
             if 0 < pred_idx_dynamic < len(time):
-                # Shift x by +1 to match 1-based indexing
                 ax_comp.axvline(x=pred_idx_dynamic + 1, color='k', linestyle='--', linewidth=1.0,
                             label=f'Pred Limit (t={pred_idx_dynamic + 1})', alpha=0.7)
             
-            # Dynamic plotting based on checkboxes:
             if st.session_state.get('viz_show_mean', False):
-                # Fallback to current stat if key missing
                 dat = results.get('ensemble_mean', results['x_model_stat'] if central_stat=='Mean' else None)
                 if dat is not None: ax_comp.plot(time, dat, color='orange', linewidth=1.0, label='Ens. Mean')
 
@@ -1388,13 +1326,13 @@ elif selected_tab == 1:
             ax_comp.text(0.99, 0.02, f'© {datetime.now().year} Altug Aksoy', transform=ax_comp.transAxes,
                 fontsize=8, ha='right', va='bottom', style='italic', color='gray',
                 bbox=dict(facecolor='white', alpha=0.5, edgecolor='none'))
+            
             st.pyplot(fig_comp)
-            plt.close(fig_comp)
+            plt.close(fig_comp) 
             
             # --- Analysis Plot 2: Histograms ---
             from matplotlib.ticker import MaxNLocator
 
-            # Read directly from the live slider keys
             t1 = st.session_state.get('hist_t1', 10)
             t2 = st.session_state.get('hist_t2', 30)
             t3 = st.session_state.get('hist_t3', 60)
@@ -1405,25 +1343,18 @@ elif selected_tab == 1:
             
             for i, t_val in enumerate(times):
                 ax = axes[i]
-                
-                # Convert 1-based slider value to 0-based array index
                 idx = t_val - 1
                 
                 if idx < full_ens_data.shape[1]:
                     data_t = full_ens_data[:, idx]
                     truth_val = results['x_true'][idx]
                     
-                    # === 1. Calculate Dynamic Range ===
-                    # Start with ensemble data AND Truth (so truth is never cut off)
                     vals_to_include = [data_t, truth_val]
-                    
-                    # Defensively add stats if they exist
                     if st.session_state.get('viz_show_mean', False) and 'ensemble_mean' in results:
                         vals_to_include.append(results['ensemble_mean'][idx])
                     if st.session_state.get('viz_show_median', False) and 'ensemble_median' in results:
                         vals_to_include.append(results['ensemble_median'][idx])
                     
-                    # Determine range
                     all_vals = np.concatenate([np.atleast_1d(v) for v in vals_to_include])
                     v_min, v_max = np.min(all_vals), np.max(all_vals)
                     
@@ -1434,13 +1365,10 @@ elif selected_tab == 1:
                     plot_min = max(0.0, v_min - pad)
                     plot_max = min(1.0, v_max + pad)
                     
-                    # === 2. Plot Histogram ===
                     ax.hist(data_t, bins=30, range=(plot_min, plot_max), density=True, 
                            color='skyblue', edgecolor='white', alpha=0.7, 
                            label='Ens. Dist.' if i == 0 else None)
                     
-                    # === 3. Plot KDE (Conditional) ===
-                    # Only plot if user selected "Yes"
                     if st.session_state.get("viz_show_kde", "Yes") == "Yes":
                         try:
                             kde = gaussian_kde(data_t)
@@ -1448,15 +1376,12 @@ elif selected_tab == 1:
                             ax.plot(x_grid, kde(x_grid), 'r-', linewidth=2, label='KDE' if i == 0 else None)
                         except: pass
                     
-                    # === 4. Plot TRUTH (Black Line) ===
                     ax.axvline(truth_val, color='black', linewidth=1.0, linestyle='-', 
                               alpha=0.8, label='Truth' if i == 0 else None, zorder=5)
 
-                    # === 5. Plot Metric Overlays (USING idx) ===
                     if st.session_state.get('viz_show_mean', False) and 'ensemble_mean' in results:
                         ax.axvline(results['ensemble_mean'][idx], color='orange', linewidth=1.0, label='Ens. Mean' if i==0 else "")
                     
-
                     ax.set_xlabel('State Value Range', fontsize=10, fontweight='bold')    
                     ax.set_title(f"Ens. Histogram at i={t_val}", fontweight='bold')
                     ax.grid(True, alpha=0.3)
@@ -1472,7 +1397,7 @@ elif selected_tab == 1:
                                  facecolor='white', framealpha=0.9, ncol=2)
 
             st.pyplot(fig_hist)
-            plt.close(fig_hist)
+            plt.close(fig_hist) 
 
         elif use_ensemble and 'x_model_full' not in results:
             st.warning("⚠️ Ensemble simulation enabled. Please click **'▶️ Run Simulation'** to generate the ensemble data.")
@@ -1482,42 +1407,29 @@ elif selected_tab == 1:
 
 
 elif selected_tab == 2:
-    # === HANDLE GENERATE PLOT BUTTON ===
     if st.session_state.get('plot_pred_clicked', False):
-        
-        # 1. FAST PATH: Check if we already have a cached image
         if st.session_state.pred_cached_img is not None:
             img_base64 = st.session_state.pred_cached_img
             timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
             st.markdown(f'<a href="data:image/png;base64,{img_base64}" download="predictability_limit_{timestamp}.png">'
                         f'<img src="data:image/png;base64,{img_base64}" style="width:100%"/></a>',
                         unsafe_allow_html=True)
-            
-        # 2. SLOW PATH: Generate the figure (Runs only once)
         else:
-            # Get selections and metric from sidebar
             selected_r_indices = st.session_state.get('selected_r_indices', [0])
             selected_mb_indices = st.session_state.get('selected_mb_indices', [0])
             y_min, y_max = st.session_state.get('pred_y_range', (0, 120))
             metric = st.session_state.get('pred_ensemble_metric', 'median')
             
-            # Get data
             pred_data = st.session_state.pred_data
             r_vals = pred_data['r_values']
             ic_vals = pred_data['ic_bias_values']
             dr_vals = pred_data['model_bias_values']
             
-            # Select surface based on chosen metric
             surf = pred_data['surface'][metric] if isinstance(pred_data['surface'], dict) else pred_data['surface']
             
             if selected_r_indices and selected_mb_indices:
-                # Create single plot with all selected combinations
                 fig, ax = plt.subplots(figsize=(12, 6))
                 
-                # --- [START OF YOUR EXISTING PLOTTING LOGIC] ---
-                # (Keep all your existing loops, line styling, legends, and text code here)
-                
-                # Define colors for different Δr values
                 num_dr = len(selected_mb_indices)
                 if num_dr == 1: colors = ['#1f77b4']
                 elif num_dr == 2: colors = ['#1f77b4', '#ff7f0e']
@@ -1528,7 +1440,6 @@ elif selected_tab == 2:
                 
                 line_styles = ['-', '--', '-.', ':', (0, (3, 1, 1, 1))]
 
-                # Plot Loop
                 for j_dr, i_dr in enumerate(selected_mb_indices):
                     for k_r, i_r in enumerate(selected_r_indices):
                         r_val = r_vals[i_r]
@@ -1542,7 +1453,6 @@ elif selected_tab == 2:
                         ax.plot(range(len(ic_vals)), pred_limits_reversed, linewidth=2.5,
                                 color=color, linestyle=linestyle)
                 
-                # Formatting
                 ax.set_xlabel('Initial Condition Uncertainty', fontsize=12, fontweight='bold')
                 ax.set_ylabel('Predictability Limit', fontsize=12, fontweight='bold')
                 ax.set_title(f'Predictability Limits (Ensemble Metric: {metric.capitalize()})',
@@ -1550,13 +1460,11 @@ elif selected_tab == 2:
                 ax.set_ylim(y_min, y_max)
                 ax.grid(True, alpha=0.3)
                 
-                # X-Ticks
                 ax.set_xticks(range(0, len(ic_vals), max(1, len(ic_vals)//10)))
                 tick_indices = ax.get_xticks().astype(int)
                 ax.set_xticklabels([f'{ic_vals[len(ic_vals)-1-i]:.1e}' if i < len(ic_vals) else ''
                                 for i in tick_indices], rotation=45, ha='right')
                 
-                # Legends (Keep your specific custom legend code)
                 left_legend_handles = []
                 for k_r, i_r in enumerate(selected_r_indices):
                     r_val = r_vals[i_r]
@@ -1579,10 +1487,7 @@ elif selected_tab == 2:
                 ax.text(0.99, 0.02, f'© {datetime.now().year} Altug Aksoy', transform=ax.transAxes,
                     fontsize=8, ha='right', va='bottom', style='italic', color='gray',
                     bbox=dict(facecolor='white', alpha=0.5, edgecolor='none'))
-                
-                # --- [END OF YOUR EXISTING PLOTTING LOGIC] ---
 
-                # 3. CACHE AND DISPLAY (New Logic)
                 img_base64 = get_image_base64(fig)
                 st.session_state.pred_cached_img = img_base64
                 
@@ -1590,9 +1495,6 @@ elif selected_tab == 2:
                 st.markdown(f'<a href="data:image/png;base64,{img_base64}" download="predictability_limit_{timestamp}.png">'
                             f'<img src="data:image/png;base64,{img_base64}" style="width:100%"/></a>',
                             unsafe_allow_html=True)
-                
-                # Note: The Table and CSV Download code has been completely removed.
-                
             else:
                 st.warning("⚠️ Please select at least one r/Δr combination in the sidebar.")
     else:
@@ -1601,60 +1503,43 @@ elif selected_tab == 2:
 
 elif selected_tab == 3:
     if st.session_state.get('fig4_ran', False) and 'fig4_data' in st.session_state:
-        
-        # 1. FAST PATH: Check if we already have a cached image
         if st.session_state.fig4_cached_img is not None:
             img_base64 = st.session_state.fig4_cached_img
             st.markdown(f'<img src="data:image/png;base64,{img_base64}" style="width:100%"/>', unsafe_allow_html=True)
-            
-        # 2. SLOW PATH: Generate the figure (Runs only once)
         else:
             data = st.session_state.fig4_data
             
-            # Helper vars
             plot_type = st.session_state.get("sb_fig4_plot_type", "Normalized Error")
             r_used = data['params']['r']
-            # Retrieve the metric used in the calculation
             metric_used = data['params'].get('metric', 'Median')
-            
-            # Retrieve user-defined limits
             user_xlim = data['params'].get('xlim', 60)
             
-            # Read Y-limit directly from session state
             if plot_type == "Normalized Error":
                 user_ylim_exp = st.session_state.get("sb_y_limit_norm", 3)
             else:
                 user_ylim_exp = st.session_state.get("sb_y_limit_abs", -10)
             
-            # Create Plot
             fig4, ax4 = plt.subplots(figsize=(10, 6))
             steps = user_xlim 
             time_axis = np.arange(1, steps + 1)
             thresh = 0.1
             
-            # Get Base Reference Metric
             ref_curve_full = data['ref']['x_absdiff_stat']
             ref_curve = np.maximum(ref_curve_full[:steps], 1e-16)
             
-            # --- [START OF YOUR EXISTING PLOTTING LOGIC] ---
             if plot_type == "Normalized Error":
-                # 1. Plot Normalized Threshold
                 norm_thresh_curve = thresh / ref_curve
                 ax4.plot(time_axis, norm_thresh_curve, 'k--', linewidth=1.5, label='Error Threshold', alpha=0.8)
                 
-                # 2. Plot Scenarios
                 for i, s in enumerate(data['scenarios']):
                     res = data['results'][i]
                     res_curve = res['x_absdiff_stat'][:steps] 
                     norm_curve = res_curve / ref_curve
                     
                     base_color = s['color']
-                    
-                    # Plot Metric Line
                     ax4.plot(time_axis, norm_curve, color=base_color, linewidth=2.0, alpha=0.8, 
                             label=s['label'])
                     
-                    # Plot Spread
                     if 'x_absdiff_p10' in res:
                         lower = (res['x_absdiff_p10'][:steps]) / ref_curve
                         upper = (res['x_absdiff_p90'][:steps]) / ref_curve
@@ -1662,17 +1547,12 @@ elif selected_tab == 3:
                         ax4.plot(time_axis, lower, color=base_color, linewidth=0.5, alpha=0.4)
                         ax4.plot(time_axis, upper, color=base_color, linewidth=0.5, alpha=0.4)
                 
-                # Label
-                ax4.set_ylabel(f"Normalized Error ({metric_used}, $\Delta / \Delta_{{ref}}$)", fontsize=12, fontweight='bold')
+                ax4.set_ylabel(rf"Normalized Error ({metric_used}, $\Delta / \Delta_{{ref}}$)", fontsize=12, fontweight='bold')
                 ax4.set_title(f"Comparative Error Growth | r={r_used:.2f}", fontweight='bold')
-                
-                # Apply Limits: Normalized
                 ax4.set_ylim(bottom=0.01, top=10**user_ylim_exp)
-                
                 legend_loc = 'upper right'
 
             else:
-                # Absolute Plotting
                 ax4.axhline(thresh, color='k', linestyle='--', linewidth=1.5, label='Threshold (0.1)')
                 
                 for i, s in enumerate(data['scenarios']):
@@ -1680,24 +1560,18 @@ elif selected_tab == 3:
                     res_curve = res['x_absdiff_stat'][:steps]
                     base_color = s['color']
                     
-                    # Plot Metric
                     ax4.plot(time_axis, res_curve, color=base_color, linewidth=2.0, alpha=0.8,
                             label=s['label'])
                     
-                    # Plot Spread
                     if 'x_absdiff_p10' in res:
                         lower = res['x_absdiff_p10'][:steps]
                         upper = res['x_absdiff_p90'][:steps]
                         ax4.plot(time_axis, lower, color=base_color, linewidth=0.5, alpha=0.4)
                         ax4.plot(time_axis, upper, color=base_color, linewidth=0.5, alpha=0.4)
 
-                # Label
                 ax4.set_ylabel(f"Absolute Error ({metric_used})", fontsize=12, fontweight='bold')
                 ax4.set_title(f"Absolute Error Growth Comparison | r={r_used:.2f}", fontweight='bold')
-                
-                # Apply Limits: Absolute
                 ax4.set_ylim(bottom=10**user_ylim_exp, top=2.0)
-                
                 legend_loc = 'lower right'
 
             ax4.set_yscale('log')
@@ -1705,13 +1579,9 @@ elif selected_tab == 3:
             ax4.grid(True, which="both", alpha=0.3)
             ax4.set_xlim(1, steps)
 
-            # Add a dummy invisible line so the legend shows the black thin line entry
             ax4.plot([], [], color='k', linewidth=0.5, label='10th/90th Percentiles')
-            
-            # Legend
             ax4.legend(loc=legend_loc, fontsize=9, framealpha=0.9)
 
-            # Add Copyright text
             if plot_type == "Normalized Error":
                 cp_x, cp_ha = 0.99, 'right'
             else:
@@ -1720,9 +1590,7 @@ elif selected_tab == 3:
             ax4.text(cp_x, 0.02, f'© {datetime.now().year} Altug Aksoy', transform=ax4.transAxes,
                 fontsize=8, ha=cp_ha, va='bottom', style='italic', color='gray',
                 bbox=dict(facecolor='white', alpha=0.5, edgecolor='none'))
-            # --- [END OF YOUR EXISTING PLOTTING LOGIC] ---
             
-            # 3. CACHE AND DISPLAY (New Logic)
             img_base64 = get_image_base64(fig4)
             st.session_state.fig4_cached_img = img_base64
             
@@ -1733,11 +1601,10 @@ elif selected_tab == 3:
 
 
 elif selected_tab == 4:
-    # === SUB-TAB 1: GENERAL INTRO TO CHAOS ===
     if st.session_state.info_sub_tab == 'intro':
         st.markdown("### General Introduction to Chaos")
 
-        st.write("""
+        st.write(r"""
         #### Overview
         This **Logistic Map Simulator** demonstrates how **small initial-condition errors** grow 
         exponentially in chaotic systems, eventually exceeding our ability to make accurate predictions.
@@ -1756,19 +1623,18 @@ elif selected_tab == 4:
         $$x_{i+1} = r x_i (1 - x_i)$$
 
         **Parameters:**
-        - $i \\geq 1$ : Iteration number of the simulation 
-        - $r \\in [0, 4]$ : Model parameter that controls system behavior (Chaotic, periodic, or fixed-point)
-        - $x_i \\in [0, 1]$ : System state at iteration $i$
+        - $i \geq 1$ : Iteration number of the simulation 
+        - $r \in [0, 4]$ : Model parameter that controls system behavior (Chaotic, periodic, or fixed-point)
+        - $x_i \in [0, 1]$ : System state at iteration $i$
 
         **Key Properties:**
         - For $r < 1$: Fixed point at $x = 0$
-        - For $1 < r < 3$: Fixed point at $x = \\frac{r-1}{r}$
+        - For $1 < r < 3$: Fixed point at $x = \frac{r-1}{r}$
         - For $r > 3$: Period-doubling bifurcations lead to chaos
-        - At $r \\approx 3.57$: Onset of chaos (Feigenbaum point)
+        - At $r \approx 3.57$: Onset of chaos (Feigenbaum point)
         - For $r > 4$ or $r < 0$: Orbits escape to infinity
         """)
 
-    # === SUB-TAB 2: HOW TO USE THIS SITE ===
     elif st.session_state.info_sub_tab == 'usage':
         st.markdown("### How to Use This Site")
 
@@ -1820,7 +1686,6 @@ elif selected_tab == 4:
             * **Model error, therefore, imposes an additional burden on predictability** if maintaining sufficient ensemble variability is important.
         """)
 
-    # === SUB-TAB 3: ABOUT ===
     elif st.session_state.info_sub_tab == 'about':
         st.markdown("### About")
         
