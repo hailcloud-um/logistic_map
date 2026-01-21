@@ -1705,27 +1705,64 @@ elif selected_tab == 4:
         """)
 
     elif st.session_state.info_sub_tab == 'about':
-        st.markdown("### About")
+        st.markdown("### About the Research")
         
-        st.markdown("#### Citation")
+        # 1. ABSTRACT & CONTEXT (Great for SEO keywords)
         st.markdown("""
-        Aksoy, A., A Monte Carlo approach to understanding the impacts of initial-condition 
-        uncertainty, model uncertainty, and simulation variability on the predictability of 
-        chaotic systems. Perspectives from the one-dimensional logistic map. 
-        *Chaos*, 34, 011102 (2024). [https://doi.org/10.1063/5.0181705](https://doi.org/10.1063/5.0181705)
+        **Summary:** This application serves as the interactive companion to the research article published in *Chaos*. 
+        It demonstrates how **model error** impacts the predictability of chaotic systems distinct from 
+        **initial-condition error**, using the logistic map as a proxy for complex geophysical models.
         """)
 
-        st.markdown("#### Author")
-        st.write("""
-        **Altug Aksoy**
-        - CIMAS/Rosenstiel School, University of Miami
-        - Hurricane Research Division/AOML, NOAA
-        - Email: aaksoy@miami.edu | altug.aksoy@noaa.gov
-        - ORCID: [0000-0002-2335-7710](https://orcid.org/0000-0002-2335-7710)
-        - Webpage: [NOAA/HRD](https://www.aoml.noaa.gov/hrd/people/altugaksoy/)
-        - LinkedIn: [Altug Aksoy's Profile](https://www.linkedin.com/in/altugaksoy)
-        """)
+        st.markdown("---")
 
+        # 2. CITATION WITH COPY-PASTE (Crucial for academics)
+        col_cit1, col_cit2 = st.columns([0.6, 0.4])
+        
+        with col_cit1:
+            st.markdown("#### 📄 Citation")
+            st.markdown("""
+            Aksoy, A. (2024). A Monte Carlo approach to understanding the impacts of initial-condition 
+            uncertainty, model uncertainty, and simulation variability on the predictability of 
+            chaotic systems. *Chaos*, 34, 011102.
+            """)
+            st.link_button("Read the Paper (DOI)", "https://doi.org/10.1063/5.0181705")
+
+        with col_cit2:
+            st.markdown("#### 📝 BibTeX")
+            # Using st.code makes it one-click copyable
+            st.code("""@article{Aksoy2024,
+                  title={A Monte Carlo approach...},
+                  author={Aksoy, Altug},
+                  journal={Chaos},
+                  volume={34},
+                  number={1},
+                  pages={011102},
+                  year={2024},
+                  publisher={AIP Publishing},
+                  doi={10.1063/5.0181705}
+                }""", language="latex")
+
+        st.markdown("---")
+
+        # 3. AUTHOR & RESOURCES (Linking back to Repo improves SEO)
+        col_auth1, col_auth2 = st.columns(2)
+
+        with col_auth1:
+            st.markdown("#### 👤 Author")
+            st.markdown("""
+            **Altug Aksoy** *CIMAS/Rosenstiel School, Univ. of Miami* *Hurricane Research Division/AOML, NOAA*
+            
+            📧 [aaksoy@miami.edu](mailto:aaksoy@miami.edu)  
+            🌐 [NOAA/HRD Profile](https://www.aoml.noaa.gov/hrd/people/altugaksoy/)  
+            🆔 [ORCID: 0000-0002-2335-7710](https://orcid.org/0000-0002-2335-7710)
+            """)
+
+        with col_auth2:
+            st.markdown("#### 💻 Source Code")
+            st.markdown("Explore the Python code behind this simulation on GitHub.")
+            st.link_button("View GitHub Repository", "https://github.com/hailcloud-um/logistic_map")
+            st.caption("Version 1.3 | License: MIT")
 
 st.markdown("---")
 st.markdown("<p style='text-align: center; color: #666; font-size: 12px;'>© 2026 Altug Aksoy | University of Miami & NOAA/AOML</p>", unsafe_allow_html=True)
