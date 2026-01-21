@@ -1665,6 +1665,14 @@ elif selected_tab == 4:
         st.markdown("### How to Use This App")
 
         st.write(r"""
+        #### General
+        *General Interaction:*
+
+        1.  Choose functionality from the tabs on the top.
+        2.  Adjust the relevant configuration options on the left.
+        3.  Press the red "Run" button at the buttom for the changes to take effect.
+            * Note that when configuration options are changed, the button turns red to indicate this.
+        
         #### Bifurcation
         *Visualize the long-term behavior of the system across different parameter values.*
 
