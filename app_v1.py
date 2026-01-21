@@ -166,11 +166,29 @@ else:
     """, unsafe_allow_html=True)
 
 
-# === PAGE CONFIGURATION ===
 st.set_page_config(
-    page_title="Logistic Map Simulator",
+    page_title="Logistic Map Simulator | Chaos, Bifurcation & Predictability",
+    page_icon="🦋",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
+    menu_items={
+        'Get Help': 'https://github.com/hailcloud-um/logistic_map',
+        'Report a bug': "https://github.com/hailcloud-um/logistic_map/issues",
+        'About': """
+        ### Logistic Map Simulator
+        **Explore the limits of predictability in chaotic systems.**
+
+        This app is the frontend interface for the research paper:
+        *Aksoy, A. (2024). Chaos, 34, 011102.*
+        
+        **Key Features:**
+        - Interactive Bifurcation Diagrams
+        - Ensemble Error Growth Analysis
+        - Predictability Limit Visualization
+        
+        **Author:** Altug Aksoy (University of Miami & NOAA/AOML)
+        """
+    }
 )
 
 
