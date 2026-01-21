@@ -1666,7 +1666,7 @@ elif selected_tab == 4:
 
         st.write(r"""
         #### General
-        *General Interaction:*
+        * Follow these steps to interact with the user interface.*
 
         1.  Choose functionality from the tabs on the top.
         2.  Adjust the relevant configuration options on the left.
