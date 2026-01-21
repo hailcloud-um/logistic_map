@@ -1,9 +1,18 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite the associated paper as follows."
+title: "Logistic Map Simulator"
+repository-code: "https://github.com/hailcloud-um/logistic_map"
+url: "https://logistic-map-simulator.streamlit.app" 
+keywords:
+  - "chaos-theory"
+  - "logistic-map"
+  - "predictability"
+  - "bifurcation"
+  - "streamlit"
+  - "python"
 authors:
   - family-names: "Aksoy"
     given-names: "Altug"
-title: "A Monte Carlo approach to understanding the impacts of initial-condition uncertainty, model uncertainty, and simulation variability on the predictability of chaotic systems: Perspectives from the one-dimensional logistic map"
 preferred-citation:
   type: article
   authors:
