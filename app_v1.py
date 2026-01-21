@@ -284,17 +284,18 @@ if 'viewport_width' not in st.session_state:
         st.session_state.viewport_width = None
 
 
-#  <<< MOBILE DISCLAIMER >>>
-if is_mobile_layout():
-    st.warning(
-        """
-        📱 **Mobile Device Detected**
-        
-        This simulation involves complex visualizations that are best viewed on a **Desktop or Laptop**. 
-        You may experience layout issues on smaller screens.
-        """,
-        icon="⚠️"
-    )
+# === MOBILE DISCLAIMER (MODAL) ===
+@st.dialog("📱 Mobile Device Detected")
+def show_mobile_warning():
+    st.write("This simulation involves complex visualizations that are best viewed on a **Desktop or Laptop**.")
+    st.write("You may experience layout issues or slow performance on smaller screens.")
+    if st.button("I Understand"):
+        st.session_state.mobile_warning_acknowledged = True
+        st.rerun()
+
+# Logic to trigger the modal only once per session
+if is_mobile_layout() and 'mobile_warning_acknowledged' not in st.session_state:
+    show_mobile_warning()
 
 
 # === INITIALIZE SIMULATOR ===
