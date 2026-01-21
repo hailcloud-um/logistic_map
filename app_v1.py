@@ -284,6 +284,19 @@ if 'viewport_width' not in st.session_state:
         st.session_state.viewport_width = None
 
 
+#  <<< MOBILE DISCLAIMER >>>
+if is_mobile_layout():
+    st.warning(
+        """
+        📱 **Mobile Device Detected**
+        
+        This simulation involves complex visualizations that are best viewed on a **Desktop or Laptop**. 
+        You may experience layout issues on smaller screens.
+        """,
+        icon="⚠️"
+    )
+
+
 # === INITIALIZE SIMULATOR ===
 @st.cache_resource
 def get_simulator():
