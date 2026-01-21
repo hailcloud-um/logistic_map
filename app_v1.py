@@ -923,77 +923,96 @@ with st.sidebar:
 
         # 5. Run Button
         if st.button("▶️ Run Comparative Analysis", type=btn_type, width='stretch', on_click=reset_fig4_ylimits):
-            with st.spinner("Running Scenario Simulations..."):
-                st.session_state.fig4_cached_img = None 
+            
+            # === PROGRESS BAR INITIALIZATION ===
+            progress_bar = st.progress(0, text="Initializing simulation...")
+            st.session_state.fig4_cached_img = None 
+            
+            # --- SIMULATION PARAMETERS ---
+            r_base = r_ref_val
+            steps = x_limit 
+            
+            # OPTIMIZATION: Reduced defaults for faster web performance
+            # Was 50 -> Now 25
+            ens_n = 25 
+            thresh = 0.1
+            
+            # OPTIMIZATION: Reduced sampling points
+            # Was 10 -> Now 5
+            ic_list = np.linspace(0.2, 0.8, 5) 
+            
+            sim_results = []
+            scenarios_to_plot = []
+            ref_res = None
+            
+            # Calculate total iterations for progress bar
+            total_scenarios = len(scenario_inputs)
+            total_ics = len(ic_list)
+            total_steps = total_scenarios * total_ics
+            current_step_count = 0
+            
+            for i, s in enumerate(scenario_inputs):
                 
-                # --- SIMULATION PARAMETERS ---
-                r_base = r_ref_val
-                steps = x_limit 
-                ens_n = 50
-                thresh = 0.1
+                # Accumulators for averaging over ICs
+                accum_stat = np.zeros(steps)
+                accum_p10 = np.zeros(steps)
+                accum_p90 = np.zeros(steps)
                 
-                # Run over multiple Initial Conditions (ICs)
-                ic_list = np.linspace(0.2, 0.8, 10) 
-                
-                sim_results = []
-                scenarios_to_plot = []
-                
-                ref_res = None
-                
-                for i, s in enumerate(scenario_inputs):
+                # Loop over different starting positions
+                for x_start in ic_list:
                     
-                    # Accumulators for averaging over ICs
-                    accum_stat = np.zeros(steps)
-                    accum_p10 = np.zeros(steps)
-                    accum_p90 = np.zeros(steps)
+                    # Update Progress Bar
+                    current_step_count += 1
+                    pct_complete = int(current_step_count / total_steps * 100)
+                    progress_bar.progress(pct_complete, text=f"Simulating Scenario {i+1}/{total_scenarios} (IC={x_start:.2f})")
                     
-                    # Loop over different starting positions
-                    for x_start in ic_list:
-                        
-                        # Apply Bias and Correct Spread
-                        res = simulator.run_simulation(
-                            r_true=r_base, x0_true=x_start, 
-                            r_model=r_base + s['mod'], x0_model=x_start + s['ic'],
-                            num_steps=steps, pred_thresh=thresh, 
-                            ensemble_enabled=True, ensemble_size=ens_n,
-                            init_val_pert=s['ic'], param_pert=0.0, 
-                            ensemble_stat=fig4_metric
-                        )
-                        
-                        # Accumulate results
-                        accum_stat += res['x_absdiff_stat'][:steps]
-                        accum_p10 += res.get('x_absdiff_p10', np.zeros(steps))[:steps]
-                        accum_p90 += res.get('x_absdiff_p90', np.zeros(steps))[:steps]
-
-                    # Compute Average Stats across all ICs
-                    avg_res = {
-                        'x_absdiff_stat': accum_stat / len(ic_list),
-                        'x_absdiff_p10': accum_p10 / len(ic_list),
-                        'x_absdiff_p90': accum_p90 / len(ic_list)
-                    }
-
-                    if i == 0: ref_res = avg_res
-                    sim_results.append(avg_res)
+                    # Apply Bias and Correct Spread
+                    res = simulator.run_simulation(
+                        r_true=r_base, x0_true=x_start, 
+                        r_model=r_base + s['mod'], x0_model=x_start + s['ic'],
+                        num_steps=steps, pred_thresh=thresh, 
+                        ensemble_enabled=True, ensemble_size=ens_n,
+                        init_val_pert=s['ic'], param_pert=0.0, 
+                        ensemble_stat=fig4_metric
+                    )
                     
-                    scenarios_to_plot.append({
-                        'ic': s['ic'],
-                        'mod': s['mod'],
-                        'color': s['color'],
-                        'label': f"IC={s['ic']:.1e}, Δr={s['mod']:.1e}"
-                    })
+                    # Accumulate results
+                    accum_stat += res['x_absdiff_stat'][:steps]
+                    accum_p10 += res.get('x_absdiff_p10', np.zeros(steps))[:steps]
+                    accum_p90 += res.get('x_absdiff_p90', np.zeros(steps))[:steps]
 
-                st.session_state.fig4_data = {
-                    'ref': ref_res,
-                    'scenarios': scenarios_to_plot,
-                    'results': sim_results,
-                    'params': current_fig4_params,
-                    'timestamp': datetime.now()
+                # Compute Average Stats across all ICs
+                avg_res = {
+                    'x_absdiff_stat': accum_stat / len(ic_list),
+                    'x_absdiff_p10': accum_p10 / len(ic_list),
+                    'x_absdiff_p90': accum_p90 / len(ic_list)
                 }
+
+                if i == 0: ref_res = avg_res
+                sim_results.append(avg_res)
                 
-                st.session_state.fig4_ran = True
-                st.session_state.fig4_last_params = current_fig4_params
-                st.session_state.fig4_btn_color = 'success'
-                
+                scenarios_to_plot.append({
+                    'ic': s['ic'],
+                    'mod': s['mod'],
+                    'color': s['color'],
+                    'label': f"IC={s['ic']:.1e}, Δr={s['mod']:.1e}"
+                })
+
+            # Clear progress bar
+            progress_bar.empty()
+
+            st.session_state.fig4_data = {
+                'ref': ref_res,
+                'scenarios': scenarios_to_plot,
+                'results': sim_results,
+                'params': current_fig4_params,
+                'timestamp': datetime.now()
+            }
+            
+            st.session_state.fig4_ran = True
+            st.session_state.fig4_last_params = current_fig4_params
+            st.session_state.fig4_btn_color = 'success'
+            
             st.rerun()
 
 
