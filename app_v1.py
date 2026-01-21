@@ -1042,7 +1042,7 @@ with st.sidebar:
             is_usage = (st.session_state.info_sub_tab == 'usage')
     
             # Button 1: About (Now First)
-            label_about = "About the Research" + (" →" if is_about else "")
+            label_about = "About" + (" →" if is_about else "")
             type_about = 'primary' if is_about else 'secondary'
             
             if st.button(label_about, type=type_about, width='stretch', key="btn_info_about"):
