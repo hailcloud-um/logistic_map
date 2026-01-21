@@ -323,6 +323,7 @@ def get_image_base64(fig):
 # === TITLE AND HEADER ===
 st.markdown("<h1 style='text-align: center; color: #32b8c6;'>🦋 Logistic Map Simulator</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center; font-size: 16px; color: #888;'>Exploration of chaos, bifurcations, and predictability in the logistic map</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; font-size: 16px; color: #888;'>Created and Maintained by Altug Aksoy</p>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center; font-size: 12px; color: #666; font-style: italic;'>Based on: Aksoy, A. (2024). Chaos, 34, 011102.</p>", unsafe_allow_html=True)
 st.markdown("---")
 
