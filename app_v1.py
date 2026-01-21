@@ -1107,8 +1107,8 @@ if selected_tab == 0:
         use_col_width = 'always' if is_mobile_layout() else False
         
         # Display the static image immediately
-        # ensure 'app_banner.png' exists in your repo!
-        st.image("app_banner.png", use_column_width=True) 
+        # ensure file exists in your repo!
+        st.image("app_welcome.png", use_column_width=True) 
         
         st.info("👆 This is a preview. Configure parameters in the sidebar and click **'▶️ Compute Bifurcation'** to generate your own interactive analysis.")
 
