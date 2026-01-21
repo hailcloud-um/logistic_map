@@ -1838,5 +1838,16 @@ elif selected_tab == 4:
             st.link_button("View GitHub Repository", "https://github.com/hailcloud-um/logistic_map")
             st.caption("Version 1.3 | License: MIT")
 
+        st.markdown("---")
+
+        # 4. DISCLAIMER
+        st.markdown("#### ⚠️ Disclaimer & Usage")
+        st.markdown("""
+        **All rights reserved.** This application is intended for educational and research purposes only. 
+        For academic use, please strictly adhere to the citation guidelines provided for both the code repository and the publication.
+        
+        *Note: This application is optimized for desktop environments. Users may experience layout or performance limitations on smaller mobile screens.*
+        """)
+
 st.markdown("---")
 st.markdown("<p style='text-align: center; color: #666; font-size: 12px;'>© 2026 Altug Aksoy | University of Miami & NOAA/AOML</p>", unsafe_allow_html=True)
