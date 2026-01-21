@@ -991,7 +991,7 @@ with st.sidebar:
                 st.rerun()
 
             # Button 2: How to Use
-            label_usage = "How to Use This Site" + (" →" if is_usage else "")
+            label_usage = "How to Use This App" + (" →" if is_usage else "")
             type_usage = 'primary' if is_usage else 'secondary'
             
             if st.button(label_usage, type=type_usage, width='stretch', key="btn_info_usage"):
@@ -1654,7 +1654,7 @@ elif selected_tab == 4:
         """)
 
     elif st.session_state.info_sub_tab == 'usage':
-        st.markdown("### How to Use This Site")
+        st.markdown("### How to Use This App")
 
         st.write(r"""
         #### Bifurcation
