@@ -256,7 +256,7 @@ if 'fig4_data' not in st.session_state:
 if 'ens_spread_type' not in st.session_state:
     st.session_state.ens_spread_type = "10th-90th Percentiles"
 if 'info_sub_tab' not in st.session_state:
-    st.session_state.info_sub_tab = "intro" 
+    st.session_state.info_sub_tab = "about" 
 
 # Initialize Checkbox States and Tracker
 if 'viz_show_mean' not in st.session_state: st.session_state.viz_show_mean = True
@@ -1031,39 +1031,39 @@ with st.sidebar:
 
 
     elif selected_tab == 4:
-        # === VERTICAL SPACER ===
-        st.markdown("<br>" * 12, unsafe_allow_html=True)
+    # === VERTICAL SPACER ===
+    st.markdown("<br>" * 12, unsafe_allow_html=True)
 
-        with st.container(border=True):
-            st.markdown("### Information Guide")
-            
-            is_intro = (st.session_state.info_sub_tab == 'intro')
-            is_usage = (st.session_state.info_sub_tab == 'usage')
-            is_about = (st.session_state.info_sub_tab == 'about')
+    with st.container(border=True):
+        st.markdown("### Information Guide")
+        
+        is_about = (st.session_state.info_sub_tab == 'about')
+        is_intro = (st.session_state.info_sub_tab == 'intro')
+        is_usage = (st.session_state.info_sub_tab == 'usage')
 
-            # Button 1: General Intro
-            label_intro = "General Introduction to Chaos" + (" →" if is_intro else "")
-            type_intro = 'primary' if is_intro else 'secondary'
-            
-            if st.button(label_intro, type=type_intro, width='stretch', key="btn_info_intro"):
-                st.session_state.info_sub_tab = 'intro'
-                st.rerun()
+        # Button 1: About (Now First)
+        label_about = "About the Research" + (" →" if is_about else "")
+        type_about = 'primary' if is_about else 'secondary'
+        
+        if st.button(label_about, type=type_about, width='stretch', key="btn_info_about"):
+            st.session_state.info_sub_tab = 'about'
+            st.rerun()
 
-            # Button 2: How to Use
-            label_usage = "How to Use This App" + (" →" if is_usage else "")
-            type_usage = 'primary' if is_usage else 'secondary'
-            
-            if st.button(label_usage, type=type_usage, width='stretch', key="btn_info_usage"):
-                st.session_state.info_sub_tab = 'usage'
-                st.rerun()
+        # Button 2: General Intro (Now Second)
+        label_intro = "General Introduction to Chaos" + (" →" if is_intro else "")
+        type_intro = 'primary' if is_intro else 'secondary'
+        
+        if st.button(label_intro, type=type_intro, width='stretch', key="btn_info_intro"):
+            st.session_state.info_sub_tab = 'intro'
+            st.rerun()
 
-            # Button 3: About
-            label_about = "About" + (" →" if is_about else "")
-            type_about = 'primary' if is_about else 'secondary'
-            
-            if st.button(label_about, type=type_about, width='stretch', key="btn_info_about"):
-                st.session_state.info_sub_tab = 'about'
-                st.rerun()
+        # Button 3: How to Use (Now Third)
+        label_usage = "How to Use This App" + (" →" if is_usage else "")
+        type_usage = 'primary' if is_usage else 'secondary'
+        
+        if st.button(label_usage, type=type_usage, width='stretch', key="btn_info_usage"):
+            st.session_state.info_sub_tab = 'usage'
+            st.rerun()
 
 
 # === MAIN CONTENT AREA ===
