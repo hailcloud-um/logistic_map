@@ -26,6 +26,18 @@ from sim_data import PRECALC_DATA
 from scipy.stats import gaussian_kde
 
 
+# === REMOVE TOP PADDING ===
+st.markdown("""
+    <style>
+        /* Reduce the white space at the top of the page */
+        .block-container {
+            padding-top: 1rem !important;
+            padding-bottom: 1rem !important;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
+
 # === SIMPLE RESPONSIVE FIGURE SIZING ===
 def is_mobile_layout():
     """Detect mobile layout based on viewport width from JavaScript."""
@@ -320,12 +332,25 @@ def get_image_base64(fig):
     return img_str
 
 
+# === COMPACT TITLE AND HEADER ===
+st.markdown("""
+<div style='text-align: center; margin-bottom: 10px;'>
+    <h3 style='color: #32b8c6; margin: 0; padding: 0;'>🦋 Logistic Map Simulator</h3>
+    <p style='font-size: 14px; color: #666; margin: 0;'>
+        Exploration of chaos & predictability | 
+        <span style='font-style: italic;'>Aksoy (2024) Chaos, 34, 011102</span>
+    </p>
+</div>
+<hr style='margin-top: 5px; margin-bottom: 15px;'>
+""", unsafe_allow_html=True)
+
+
 # === TITLE AND HEADER ===
-st.markdown("<h1 style='text-align: center; color: #32b8c6;'>🦋 Logistic Map Simulator</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; font-size: 16px; color: #888;'>Exploration of chaos, bifurcations, and predictability in the logistic map</p>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; font-size: 16px; color: #888;'>Created and Maintained by Altug Aksoy</p>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; font-size: 12px; color: #666; font-style: italic;'>Based on: Aksoy, A. (2024). Chaos, 34, 011102.</p>", unsafe_allow_html=True)
-st.markdown("---")
+#st.markdown("<h1 style='text-align: center; color: #32b8c6;'>🦋 Logistic Map Simulator</h1>", unsafe_allow_html=True)
+#st.markdown("<p style='text-align: center; font-size: 16px; color: #888;'>Exploration of chaos, bifurcations, and predictability in the logistic map</p>", unsafe_allow_html=True)
+#st.markdown("<p style='text-align: center; font-size: 16px; color: #888;'>Created and Maintained by Altug Aksoy</p>", unsafe_allow_html=True)
+#st.markdown("<p style='text-align: center; font-size: 12px; color: #666; font-style: italic;'>Based on: Aksoy, A. (2024). Chaos, 34, 011102.</p>", unsafe_allow_html=True)
+#st.markdown("---")
 
 
 # === TAB NAVIGATION ===
