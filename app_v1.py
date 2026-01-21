@@ -1085,7 +1085,7 @@ if selected_tab == 0:
         # ensure 'app_banner.png' exists in your repo!
         st.image("app_banner.png", use_column_width=True) 
         
-        st.info("Please configure parameters in the sidebar and click **'▶️ Compute Bifurcation'** to generate your own interactive analysis.")
+        st.info("👆 This is a preview. Configure parameters in the sidebar and click **'▶️ Compute Bifurcation'** to generate your own interactive analysis.")
 
 
 elif selected_tab == 1:
