@@ -349,7 +349,7 @@ def get_image_base64(fig):
 # === COMPACT TITLE AND HEADER ===
 st.markdown("""
 <div style='text-align: center; margin-bottom: 10px;'>
-    <h3 style='color: #32b8c6; margin: 0; padding: 0; font-size: 40px;'>🦋 Logistic Map Simulator</h3>
+    <h3 style='color: #32b8c6; margin: 0; padding: 0; font-size: 32px;'>🦋 Logistic Map Simulator</h3>
     <p style='font-size: 14px; color: #666; margin: 0;'>
         Exploration of chaos & predictability | 
         <span style='font-style: italic;'>Aksoy (2024) Chaos, 34, 011102</span>
