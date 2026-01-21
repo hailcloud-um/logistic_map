@@ -1729,7 +1729,7 @@ elif selected_tab == 4:
             st.link_button("Read the Paper (DOI)", "https://doi.org/10.1063/5.0181705")
 
         with col_cit2:
-            st.markdown("#### 📝 BibTeX (Use the Copy button th add to your library")
+            st.markdown("#### 📝 BibTeX (Use Copy to Add to Library)"
             # Using st.code makes it one-click copyable
             st.code("""@article{Aksoy2024,
                   title={A Monte Carlo approach...},
