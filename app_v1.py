@@ -1845,6 +1845,8 @@ elif selected_tab == 4:
         st.markdown("""
         **All rights reserved.** This application is intended for educational and research purposes only. 
         For academic use, please strictly adhere to the citation guidelines provided for both the code repository and the publication.
+
+        **I would love to hear from you!** Please feel free to contact me at my email above for any suggestions or if you encounter issues/bugs. 
         
         *Note: This application is optimized for desktop environments. Users may experience layout or performance limitations on smaller mobile screens.*
         """)
