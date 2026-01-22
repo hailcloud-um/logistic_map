@@ -1825,7 +1825,7 @@ elif selected_tab == 4:
         with col_auth1:
             st.markdown("#### 👤 Author")
             st.markdown("""
-            **Altug Aksoy** *CIMAS/Rosenstiel School, Univ. of Miami* *Hurricane Research Division/AOML, NOAA*
+            **Altug Aksoy**, Scientist at *CIMAS/Rosenstiel School, Univ. of Miami* and *Hurricane Research Division/AOML, NOAA*
             
             📧 [aaksoy@miami.edu](mailto:aaksoy@miami.edu)  
             🌐 [NOAA/HRD Profile](https://www.aoml.noaa.gov/hrd/people/altugaksoy/)  
