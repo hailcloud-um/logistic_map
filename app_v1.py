@@ -26,6 +26,32 @@ from sim_data import PRECALC_DATA
 from scipy.stats import gaussian_kde
 
 
+# === PAGE CONFIGURATION FOR MAXIMUM VISIBILITY ===
+st.set_page_config(
+    # Shifting keywords to the front for better SEO indexing
+    page_title="Chaos & Predictability: Logistic Map Simulator | Altug Aksoy",
+    page_icon="🦋",
+    layout="wide",
+    initial_sidebar_state="expanded",
+    menu_items={
+        # Direct email link for bug reporting
+        'Report a bug': "mailto:aaksoy@miami.edu",
+        # GitHub Repo link for Help
+        'Get Help': "https://github.com/hailcloud-um/logistic_map/tree/main",
+        'About': """
+        ### Logistic Map Simulator
+        **Interactive Research Tool for Chaos & Predictability**
+        
+        This simulator explores how model error and initial conditions affect 
+        predictability limits in chaotic systems.
+        
+        **Author:** Altug Aksoy
+        **Citation:** Aksoy, A. (2024). Chaos, 34, 011102.
+        """
+    }
+)
+
+
 # === REMOVE TOP PADDING ===
 st.markdown("""
     <style>
@@ -176,32 +202,6 @@ else:
         }
     </style>
     """, unsafe_allow_html=True)
-
-
-st.set_page_config(
-    page_title="Logistic Map Simulator | Chaos, Bifurcation & Predictability",
-    page_icon="🦋",
-    layout="wide",
-    initial_sidebar_state="expanded",
-    menu_items={
-        'Get Help': 'https://github.com/hailcloud-um/logistic_map',
-        'Report a bug': "https://github.com/hailcloud-um/logistic_map/issues",
-        'About': """
-        ### Logistic Map Simulator
-        **Explore the limits of predictability in chaotic systems.**
-
-        This app is the frontend interface for the research paper:
-        *Aksoy, A. (2024). Chaos, 34, 011102.*
-        
-        **Key Features:**
-        - Interactive Bifurcation Diagrams
-        - Ensemble Error Growth Analysis
-        - Predictability Limit Visualization
-        
-        **Author:** Altug Aksoy (University of Miami & NOAA/AOML)
-        """
-    }
-)
 
 
 # === SIDEBAR MINIMUM WIDTH ===
@@ -1852,4 +1852,15 @@ elif selected_tab == 4:
         """)
 
 st.markdown("---")
-st.markdown("<p style='text-align: center; color: #666; font-size: 12px;'>© 2026 Altug Aksoy | University of Miami & NOAA/AOML</p>", unsafe_allow_html=True)
+st.markdown(
+    """
+    <div style='text-align: center; color: #666; font-size: 12px;'>
+        © 2026 Altug Aksoy | University of Miami & NOAA/AOML | 
+        <a href="https://github.com/hailcloud-um/logistic_map/tree/main" target="_blank" style="color: #32b8c6; text-decoration: none;">View on GitHub</a>
+    </div>
+    """, 
+    unsafe_allow_html=True
+)
+
+#st.markdown("---")
+#st.markdown("<p style='text-align: center; color: #666; font-size: 12px;'>© 2026 Altug Aksoy | University of Miami & NOAA/AOML</p>", unsafe_allow_html=True)
