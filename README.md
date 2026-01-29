@@ -15,7 +15,7 @@ Unlike standard simulators, this app demonstrates the chaotic behavior of the **
 ## Research & Citation
 This tool was developed by **Dr. Altug Aksoy** (University of Miami / CIMAS & NOAA / AOML) as a companion to the following research:
 
-> **Aksoy, A. (2024).** *A Monte Carlo approach to understanding the impacts of initial-condition uncertainty, model uncertainty, and simulation variability on the predictability of chaotic systems. Perspectives from the one-dimensional logistic map.* **Chaos**, 34, 011102. [https://doi.org](https://doi.org)
+> **Aksoy, A. (2024).** *A Monte Carlo approach to understanding the impacts of initial-condition uncertainty, model uncertainty, and simulation variability on the predictability of chaotic systems. Perspectives from the one-dimensional logistic map.* **Chaos**, 34, 011102. [Access on *Chaos*](https://doi.org/10.1063/5.0181705)
 
 ## ✉️ Contact & Support
 If you have questions regarding the research or encounter technical issues with the simulator, please feel free to reach out:
