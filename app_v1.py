@@ -28,16 +28,15 @@ from scipy.stats import gaussian_kde
 
 # === PAGE CONFIGURATION FOR MAXIMUM VISIBILITY ===
 st.set_page_config(
-    # Shifting keywords to the front for better SEO indexing
     page_title="Chaos & Predictability: Logistic Map Simulator | Altug Aksoy",
     page_icon="🦋",
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items={
-        # Direct email link for bug reporting
-        'Suggestions and report a bug': "mailto:aaksoy@miami.edu",
-        # GitHub Repo link for Help
-        'Access the code': "https://github.com/hailcloud-um/logistic_map/tree/main",
+        # Streamlit requires this exact key: "Report a bug"
+        'Report a bug': "mailto:aaksoy@miami.edu",
+        # Streamlit requires this exact key: "Get help" (lowercase 'h')
+        'Get help': "https://github.com/hailcloud-um/logistic_map/tree/main",
         'About': """
         ### Logistic Map Simulator
         **Interactive Research Tool for Chaos & Predictability**
