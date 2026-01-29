@@ -16,3 +16,10 @@ Unlike standard simulators, this app demonstrates the chaotic behavior of the **
 This tool was developed by **Dr. Altug Aksoy** (University of Miami / CIMAS & NOAA / AOML) as a companion to the following research:
 
 > **Aksoy, A. (2024).** *A Monte Carlo approach to understanding the impacts of initial-condition uncertainty, model uncertainty, and simulation variability on the predictability of chaotic systems. Perspectives from the one-dimensional logistic map.* **Chaos**, 34, 011102. [https://doi.org](https://doi.org)
+
+## ✉️ Contact & Support
+If you have questions regarding the research or encounter technical issues with the simulator, please feel free to reach out:
+
+* **Email**: [aaksoy@miami.edu](mailto:aaksoy@miami.edu)
+* **Ask a Question**: [Click here to send an email inquiry](mailto:aaksoy@miami.edu?subject=Question%20about%20Logistic%20Map%20Simulator)
+* **Community**: Join the conversation in the [Discussions](https://github.com/hailcloud-um/logistic_map/discussions) tab!
