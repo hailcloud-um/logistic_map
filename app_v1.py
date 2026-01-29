@@ -35,9 +35,9 @@ st.set_page_config(
     initial_sidebar_state="expanded",
     menu_items={
         # Direct email link for bug reporting
-        'Suggestions/Report a bug': "mailto:aaksoy@miami.edu",
+        'Suggestions and report a bug': "mailto:aaksoy@miami.edu",
         # GitHub Repo link for Help
-        'Access The Code': "https://github.com/hailcloud-um/logistic_map/tree/main",
+        'Access the code': "https://github.com/hailcloud-um/logistic_map/tree/main",
         'About': """
         ### Logistic Map Simulator
         **Interactive Research Tool for Chaos & Predictability**
