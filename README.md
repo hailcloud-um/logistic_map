@@ -2,7 +2,7 @@
 
 This repository contains the source code for the **Logistic Map Simulator**, an interactive tool designed to explore **chaos theory**, **nonlinear dynamics**, and **predictability limits** in 1D dynamical systems.
 
-### 🌐 [Launch the Live App on Streamlit](https://logistic-map.streamlit.app)
+### 🌐 <a href="https://logistic-map.streamlit.app" target="_blank">Launch the Live App on Streamlit</a>
 
 ## Overview
 Unlike standard simulators, this app demonstrates the chaotic behavior of the **one-dimensional logistic equation** with a specific focus on **model error** and **initial-condition uncertainty**. It allows researchers and students to visualize how uncertainty propagates in chaotic models, leading to a "predictability horizon."
@@ -22,5 +22,5 @@ This tool was developed by **Dr. Altug Aksoy** (University of Miami / CIMAS & NO
 ## ✉️ Contact & Support
 If you have questions regarding the research or encounter technical issues with the simulator, please feel free to reach out:
 
-* **Direct Inquiry**: [Click here to send an email inquiry](mailto:aaksoy@miami.edu?subject=Question%20about%20Logistic%20Map%20Simulator)
-* **Community**: Join the conversation in the [Discussions](https://github.com/hailcloud-um/logistic_map/discussions) tab!
+* **Direct Inquiry**: <a href="mailto:aaksoy@miami.edu?subject=Question%20about%20Logistic%20Map%20Simulator" target="_blank">Click here to send an email inquiry</a>
+* **Community**: <a href="https://github.com/hailcloud-um/logistic_map/discussions" target="_blank">Join the conversation in the Discussions tab!</a>
