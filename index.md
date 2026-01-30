@@ -1,9 +1,9 @@
 ---
-layout: default
-title: Logistic Map Simulator & Research
+layout: single
+title: "Logistic Map Simulator & Research"
+author_profile: true
 ---
 
-<link rel="icon" type="image/png" href="/favicon.png">
 <script type="text/javascript" async
   src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
 </script>
