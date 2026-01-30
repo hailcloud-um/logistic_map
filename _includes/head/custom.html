@@ -38,19 +38,28 @@
   }
 
   /* 3. SIDEBAR SEPARATORS & SHARE HEADERS */
+  
+  /* Target the link containing "separator-line" and turn it into a physical line */
+  .author__urls-wrapper a[href*="separator-line"],
+  .author__urls-wrapper a[data-label="separator-line"] {
+    font-size: 0 !important;
+    text-indent: -9999px; /* Shoves the text off-screen */
+    border-top: 1px solid #ccc;
+    display: block;
+    margin: 15px 0 10px 0;
+    cursor: default;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  /* Hide the link icon for any separator or header */
   .author__urls-wrapper a[href="#"] i,
-  .author__urls-wrapper a[href="#"] svg {
+  .author__urls-wrapper a[href="#"] svg,
+  .author__urls-wrapper a[href*="separator-line"] i {
     display: none !important;
   }
 
-  .author__urls-wrapper a[href*="separator-line"] {
-    font-size: 0 !important; 
-    border-top: 1px solid #ccc;
-    display: block;
-    margin: 10px 0;
-    cursor: default;
-  }
-
+  /* Style the "SHARE" section header */
   .author__urls-wrapper a[href="#"] {
     cursor: default;
     pointer-events: none;
