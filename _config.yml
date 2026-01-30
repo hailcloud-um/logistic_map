@@ -24,9 +24,11 @@ author:
       url: "https://github.com/hailcloud-um"
     
     # --- Separator & Share Section ---
-    - label: "&nbsp;" # This creates an empty space
+    - label: "separator-line"
+      icon: "none"
       url: "#"
-    - label: "Share the Simulator"
+    - label: "SHARE THE SIMULATOR"
+      icon: "none"
       url: "#"
     - label: "Share on LinkedIn"
       icon: "fab fa-fw fa-linkedin"
