@@ -1,5 +1,6 @@
 # Site Settings
-title: Altug Aksoy, PhD
+title: Altug Aksoy, PhD  # This stays in the browser tab
+name: "Logistic Map Explorer" # Hidden by CSS, but good for SEO
 description: "Atmospheric Scientist | Tropical Cyclones & Data Assimilation"
 url: "https://hailcloud-um.github.io" 
 baseurl: "/logistic_map"              
