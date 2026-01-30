@@ -3,6 +3,7 @@ layout: default
 title: Logistic Map Simulator & Research
 ---
 
+<link rel="icon" type="image/png" href="/favicon.png">
 <script type="text/javascript" async
   src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
 </script>
