@@ -1,1 +1,30 @@
 <link rel="icon" type="image/png" href="{{ '/favicon.png' | relative_url }}">
+
+<style>
+  /* 1. Hide icons for any link pointing to "#" (our separators) */
+  .author__urls-wrapper a[href="#"] i,
+  .author__urls-wrapper a[href="#"] svg {
+    display: none !important;
+  }
+
+  /* 2. Turn the "separator-line" text into an actual horizontal rule */
+  .author__urls-wrapper a[href*="separator-line"] {
+    font-size: 0 !important; /* Hides the text "separator-line" */
+    border-top: 1px solid #ccc;
+    display: block;
+    margin: 10px 0;
+    cursor: default;
+  }
+
+  /* 3. Style the "SHARE" header text */
+  .author__urls-wrapper a[href="#"] {
+    cursor: default;
+    pointer-events: none;
+    font-weight: bold;
+    color: #666 !important;
+    text-transform: uppercase;
+    font-size: 0.75em;
+    letter-spacing: 1px;
+    margin-top: 5px;
+  }
+</style>
