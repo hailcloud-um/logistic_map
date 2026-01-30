@@ -25,26 +25,24 @@ author:
     
     # --- Separator & Share Section ---
     - label: "separator-line"
-      icon: "none"
       url: "#"
-    - label: "SHARE THE SIMULATOR"
-      icon: "none"
+    - label: "SHARE THIS RESEARCH"
       url: "#"
     - label: "Share on LinkedIn"
       icon: "fab fa-fw fa-linkedin"
-      url: "https://www.linkedin.com/sharing/share-offsite/?url=https://logistic-map.streamlit.app/"
+      url: "https://www.linkedin.com/sharing/share-offsite/?url=https://hailcloud-um.github.io/logistic_map/"
     - label: "Share on X"
       icon: "fab fa-fw fa-x-twitter"
-      url: "https://twitter.com/intent/tweet?text=Check out this Logistic Map Simulator for Chaos and Predictability:&url=https://logistic-map.streamlit.app/"
+      url: "https://twitter.com/intent/tweet?text=Exploring Chaos and Predictability with the Logistic Map Simulator:&url=https://hailcloud-um.github.io/logistic_map/"
     - label: "Share on Facebook"
       icon: "fab fa-fw fa-facebook"
-      url: "https://www.facebook.com/sharer/sharer.php?u=https://logistic-map.streamlit.app/"
+      url: "https://www.facebook.com/sharer/sharer.php?u=https://hailcloud-um.github.io/logistic_map/"
     - label: "Share on Reddit"
       icon: "fab fa-fw fa-reddit"
-      url: "https://www.reddit.com/submit?url=https://logistic-map.streamlit.app/&title=Interactive Logistic Map Simulator for Chaos Research"
+      url: "https://www.reddit.com/submit?url=https://hailcloud-um.github.io/logistic_map/&title=Chaos and Predictability: The Logistic Map Explorer"
     - label: "Share via Email"
       icon: "fas fa-fw fa-envelope"
-      url: "mailto:?subject=Interactive Chaos Simulator&body=Check out this Logistic Map Simulator: https://logistic-map.streamlit.app/"
+      url: "mailto:?subject=Chaos and Predictability Research&body=Check out this interactive research on the Logistic Map: https://hailcloud-um.github.io/logistic_map/"
 
 # Plugins required by Minimal Mistakes
 plugins:
