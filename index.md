@@ -3,6 +3,10 @@ layout: default
 title: Logistic Map Simulator & Research
 ---
 
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
 # Welcome to the Logistic Map Explorer
 
 This site serves as the interactive companion to my research in **Chaos and Predictability**. 
