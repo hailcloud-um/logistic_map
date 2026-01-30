@@ -19,5 +19,5 @@ $$x_{i+1} = r x_i (1 - x_i)$$
 ### Interactive Simulator
 I have developed a specialized simulator to explore these dynamics.
 * **[Launch the Live App](https://logistic-map.streamlit.app/)**: You can play around with the full app following this link.
-* 
+
 * **[Research Paper](https://doi.org/10.1063/5.0181705)**: You can read the full scientific details in my *Chaos* publication.
