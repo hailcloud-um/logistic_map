@@ -1,8 +1,15 @@
 ---
 layout: single
-title: "Logistic Map Simulator & Research"
 author_profile: true
+header:
+  overlay_color: "#5e616c" # A professional slate-blue tone
+  overlay_filter: 0.5
 ---
+
+<div style="text-align: center; padding: 40px 0;">
+  <h1 style="font-size: 2.8em; border-bottom: none; margin-bottom: 0;">Logistic Map Simulator & Research</h1>
+  <p style="font-size: 1.3em; color: #666; font-style: italic;">Exploring the Boundaries of Chaos and Predictability</p>
+</div>
 
 <script type="text/javascript" async
   src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
