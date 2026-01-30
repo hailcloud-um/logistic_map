@@ -1,22 +1,56 @@
 <link rel="icon" type="image/png" href="{{ '/favicon.png' | relative_url }}">
 
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
 <style>
-  /* 1. Hide icons for any link pointing to "#" (our separators) */
+  /* 1. SITE-WIDE TYPOGRAPHY */
+  body {
+    font-size: 15px !important; /* Fixed base size to align your banner title */
+  }
+
+  .page__content {
+    font-size: 0.95em;
+  }
+
+  .page__content h3 {
+    font-size: 1.1em;
+    margin-top: 1.5em;
+  }
+
+  .sidebar {
+    font-size: 1.0em !important; /* Protected from shrinking below 15px */
+  }
+
+  /* 2. MASTHEAD / NAVIGATION (Centered & Name-free) */
+  .masthead .site-title, 
+  .masthead__menu .site-title,
+  .masthead__inner-links .site-title {
+    display: none !important;
+  }
+
+  .masthead__inner-links {
+    display: flex !important;
+    justify-content: center !important;
+    width: 100% !important;
+    margin-right: 0 !important;
+  }
+
+  /* 3. SIDEBAR SEPARATORS & SHARE HEADERS */
   .author__urls-wrapper a[href="#"] i,
   .author__urls-wrapper a[href="#"] svg {
     display: none !important;
   }
 
-  /* 2. Turn the "separator-line" text into an actual horizontal rule */
   .author__urls-wrapper a[href*="separator-line"] {
-    font-size: 0 !important; /* Hides the text "separator-line" */
+    font-size: 0 !important; 
     border-top: 1px solid #ccc;
     display: block;
     margin: 10px 0;
     cursor: default;
   }
 
-  /* 3. Style the "SHARE" header text */
   .author__urls-wrapper a[href="#"] {
     cursor: default;
     pointer-events: none;
@@ -28,49 +62,12 @@
     margin-top: 5px;
   }
 
-  /* 4. UNIVERSAL HIDE: Removes the name from the top bar entirely (Left or Right) */
-  .masthead .site-title, 
-  .masthead__menu .site-title,
-  .masthead__inner-links .site-title {
-    display: none !important;
-  }
-
-  /* 5. RE-CENTER: Ensures the menu occupies the full width and stays centered */
-  .masthead__inner-links {
-    display: flex !important;
-    justify-content: center !important;
-    width: 100% !important;
-    margin-right: 0 !important;
-  }
-
-  /* 6. NEW: Hides the default left-aligned page title to prevent duplicates */
+  /* 4. PAGE LAYOUT CLEANUP */
   .page__title {
-    display: none !important;
+    display: none !important; /* Removes redundant left-aligned titles */
   }
 
-  /* 7. NEW: Adjusts the banner padding for a cleaner centered look */
   .page__header {
     margin-bottom: 0 !important;
   }
-
-  /* Reduces the base font size for the entire site */
-  body {
-    font-size: 15px !important; /* Default is usually 18px or 1.125em */
-  }
-  
-  /* Specifically shrinks the main content text and headers */
-  .page__content {
-    font-size: 0.95em;
-  }
-  
-  .page__content h3 {
-    font-size: 1.1em; /* Makes section headers less overwhelming */
-    margin-top: 1.5em;
-  }
-  
-  /* Ensures the sidebar text scales down as well */
-  .sidebar {
-    font-size: 0.85em;
-  }
-  
 </style>
