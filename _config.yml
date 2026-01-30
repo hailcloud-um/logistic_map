@@ -1,8 +1,9 @@
 # Site Settings
 title: Altug Aksoy, PhD
 description: "Atmospheric Scientist | Tropical Cyclones & Data Assimilation"
-url: "https://hailcloud-um.github.io" # Replace with your actual GitHub URL
-baseurl: "/logistic_map"              # Replace with your repo name if not the primary site
+url: "https://hailcloud-um.github.io" 
+baseurl: "/logistic_map"              
+
 remote_theme: "mmistakes/minimal-mistakes@4.27.3"
 minimal_mistakes_skin: "air" 
 
@@ -21,6 +22,27 @@ author:
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
       url: "https://github.com/hailcloud-um"
+    
+    # --- Separator & Share Section ---
+    - label: "━━━━━━━━━━━━━━"
+      url: "#"
+    - label: "Share the Simulator"
+      url: "#"
+    - label: "Share on LinkedIn"
+      icon: "fab fa-fw fa-linkedin"
+      url: "https://www.linkedin.com/sharing/share-offsite/?url=https://logistic-map.streamlit.app/"
+    - label: "Share on X"
+      icon: "fab fa-fw fa-x-twitter"
+      url: "https://twitter.com/intent/tweet?text=Check out this Logistic Map Simulator for Chaos and Predictability:&url=https://logistic-map.streamlit.app/"
+    - label: "Share on Facebook"
+      icon: "fab fa-fw fa-facebook"
+      url: "https://www.facebook.com/sharer/sharer.php?u=https://logistic-map.streamlit.app/"
+    - label: "Share on Reddit"
+      icon: "fab fa-fw fa-reddit"
+      url: "https://www.reddit.com/submit?url=https://logistic-map.streamlit.app/&title=Interactive Logistic Map Simulator for Chaos Research"
+    - label: "Share via Email"
+      icon: "fas fa-fw fa-envelope"
+      url: "mailto:?subject=Interactive Chaos Simulator&body=Check out this Logistic Map Simulator: https://logistic-map.streamlit.app/"
 
 # Plugins required by Minimal Mistakes
 plugins:
