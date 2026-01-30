@@ -1,0 +1,7 @@
+main:
+  - title: "Home"
+    url: /
+  - title: "Interactive App"
+    url: https://logistic-map.streamlit.app/
+  - title: "Research Paper"
+    url: https://doi.org/10.1063/5.0181705
