@@ -24,7 +24,7 @@ author:
       url: "https://github.com/hailcloud-um"
     
     # --- Separator & Share Section ---
-    - label: "━━━━━━━━━━━━━━"
+    - label: "&nbsp;" # This creates an empty space
       url: "#"
     - label: "Share the Simulator"
       url: "#"
