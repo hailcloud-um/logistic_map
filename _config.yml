@@ -26,7 +26,7 @@ author:
     
     # --- Separator & Share Section ---
     - label: "separator-line"
-      url: "#"
+      url: "separator-line" # Matching the URL to the label makes the CSS selector very stable
     - label: "SHARE THIS RESEARCH"
       url: "#"
     - label: "Share on LinkedIn"
