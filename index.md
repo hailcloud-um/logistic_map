@@ -6,9 +6,9 @@ header:
   overlay_filter: 0.5
 ---
 
-<div style="text-align: center; color: white; margin-top: -150px; margin-bottom: 80px; position: relative; z-index: 10;">
-  <h1 style="font-size: 2.8em; border-bottom: none; color: white; margin-bottom: 0;">Logistic Map Simulator & Research</h1>
-  <p style="font-size: 1.3em; opacity: 0.9; font-style: italic;">Exploring the Boundaries of Chaos and Predictability</p>
+<div style="text-align: center; color: white; margin-top: -125px; margin-bottom: 60px; position: relative; z-index: 10;">
+  <h1 style="font-size: 2.0em; border-bottom: none; color: white; margin-bottom: 5px; line-height: 1.2;">Logistic Map Simulator & Research</h1>
+  <p style="font-size: 1.0em; opacity: 0.9; font-style: italic;">Exploring the Boundaries of Chaos and Predictability</p>
 </div>
 
 <script type="text/javascript" async
