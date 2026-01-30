@@ -12,7 +12,7 @@ header:
 </div>
 
 <script type="text/javascript" async
-  src="https://cdnjs.cloudflare.com/async/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
 </script>
 
 ### Welcome to the Logistic Map Explorer
@@ -22,7 +22,9 @@ This site serves as the interactive companion to my research in **Chaos and Pred
 ### Understanding the Logistic Map
 The logistic map is a discrete-time demographic model often cited as an archetypal example of how complex, chaotic behavior can arise from very simple non-linear dynamical equations:
 
+<div markdown="1">
 $$x_{i+1} = r x_i (1 - x_i)$$
+</div>
 
 ### Interactive Simulator
 I have developed a specialized simulator to explore these dynamics.
