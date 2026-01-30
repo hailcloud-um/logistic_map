@@ -1,16 +1,10 @@
 title: Altug Aksoy, PhD
-description: Atmospheric Scientist | Tropical Cyclones & Data Assimilation
-remote_theme: pages-themes/minimal@v0.2.0 # A clean, scientific look
-google_analytics: # You can add your ID here later
-show_downloads: true
-kramdown:
-  math_engine: mathjax
-social_links:
-  - name: Google Scholar
-    url: https://scholar.google.com/citations?user=YOUR_ID_HERE
-  - name: ORCID
-    url: https://orcid.org/0000-0002-2335-7710
-  - name: GitHub
-    url: https://github.com/hailcloud-um
-  - name: Email
-    url: mailto:aaksoy@miami.edu
+logo: /favicon.png
+description: >
+  Atmospheric Scientist | Tropical Cyclones & Data Assimilation
+  <br><br>
+  [Google Scholar](https://scholar.google.com/citations?user=YOUR_ID_HERE)  
+  [ORCID](https://orcid.org/0000-0002-2335-7710)  
+  [Email](mailto:aaksoy@miami.edu)
+github_username: hailcloud-um
+remote_theme: pages-themes/minimal@v0.2.0
