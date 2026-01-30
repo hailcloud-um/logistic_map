@@ -1,7 +1,28 @@
+# Site Settings
 title: Altug Aksoy, PhD
-description: Atmospheric Scientist | Tropical Cyclones & Data Assimilation
-remote_theme: pages-themes/minimal@v0.2.0 # A clean, scientific look
-google_analytics: # You can add your ID here later
-show_downloads: true
-kramdown:
-  math_engine: mathjax
+description: "Atmospheric Scientist | Tropical Cyclones & Data Assimilation"
+url: "https://hailcloud-um.github.io" # Replace with your actual GitHub URL
+baseurl: "/logistic_map"              # Replace with your repo name if not the primary site
+remote_theme: "mmistakes/minimal-mistakes@4.27.3"
+minimal_mistakes_skin: "air" 
+
+# Author Sidebar
+author:
+  name: "Altug Aksoy"
+  bio: "Specializing in Tropical Cyclones and Data Assimilation at CIMAS/University of Miami."
+  location: "Miami, FL"
+  links:
+    - label: "Google Scholar"
+      icon: "fas fa-fw fa-graduation-cap"
+      url: "https://scholar.google.com/citations?hl=en&user=UmBrsMEAAAAJ"
+    - label: "ORCID"
+      icon: "fab fa-fw fa-orcid"
+      url: "https://orcid.org/0000-0002-2335-7710"
+    - label: "GitHub"
+      icon: "fab fa-fw fa-github"
+      url: "https://github.com/hailcloud-um"
+
+# Plugins required by Minimal Mistakes
+plugins:
+  - jekyll-remote-theme
+  - jekyll-include-cache
