@@ -28,15 +28,19 @@
     margin-top: 5px;
   }
 
-  /* 4. Hides the site title in the top-left masthead only */
+  /* 4. UNIVERSAL HIDE: Removes the name from the top bar entirely (Left or Right) */
+  .masthead .site-title, 
+  .masthead__menu .site-title,
   .masthead__inner-links .site-title {
     display: none !important;
   }
 
-  /* 5. Centers the navigation tabs in the masthead */
+  /* 5. RE-CENTER: Ensures the menu occupies the full width and stays centered */
   .masthead__inner-links {
-    justify-content: center;
-    width: 100%;
+    display: flex !important;
+    justify-content: center !important;
+    width: 100% !important;
+    margin-right: 0 !important;
   }
 
   /* 6. NEW: Hides the default left-aligned page title to prevent duplicates */
