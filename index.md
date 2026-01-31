@@ -1,13 +1,15 @@
 ---
 layout: single
-title: "Altug Aksoy Research Main Page"
-excerpt: "Atmospheric Science, Tropical Cyclones, Data Assimilation, and Predictability"
+title: ""  # Leave empty so it doesn't conflict
 author_profile: true
 permalink: /
+# We inject the Title and Subtitle into the excerpt using HTML spans
+excerpt: >
+  <span style="display: block; font-size: 2.5em; font-weight: bold; color: white; line-height: 1.2; margin-bottom: 10px;">Altug Aksoy Research Main Page</span>
+  <span style="display: block; font-size: 1.1em; color: white; opacity: 0.9;">Atmospheric Science, Tropical Cyclones, Data Assimilation, and Predictability</span>
 header:
   overlay_color: "#000"
   overlay_filter: 0.1
-  # This line "tricks" the theme into rendering the full title/excerpt stack
   overlay_image: https://raw.githubusercontent.com/mmistakes/minimal-mistakes/master/assets/images/header-bg.jpg
 ---
 
