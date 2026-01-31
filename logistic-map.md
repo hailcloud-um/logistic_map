@@ -3,7 +3,7 @@ layout: single
 title: "Logistic Map Simulator"
 excerpt: "Exploring the Boundaries of Chaos and Predictability"
 author_profile: true
-permalink: /
+permalink: /logistic-map/
 header:
   overlay_color: "#000"
   overlay_filter: 0.1
