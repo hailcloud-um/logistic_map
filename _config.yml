@@ -1,16 +1,51 @@
+# Site Settings
 title: Altug Aksoy, PhD
-description: Atmospheric Scientist | Tropical Cyclones & Data Assimilation
-remote_theme: pages-themes/minimal@v0.2.0 # A clean, scientific look
-google_analytics: # You can add your ID here later
-show_downloads: true
-kramdown:
-  math_engine: mathjax
-social_links:
-  - name: Google Scholar
-    url: https://scholar.google.com/citations?user=YOUR_ID_HERE
-  - name: ORCID
-    url: https://orcid.org/0000-0002-2335-7710
-  - name: GitHub
-    url: https://github.com/hailcloud-um
-  - name: Email
-    url: mailto:aaksoy@miami.edu
+name: "Aksoy Research" 
+description: "Atmospheric Scientist | Tropical Cyclones & Data Assimilation"
+url: "https://aksoyresearch.com" 
+baseurl: ""               
+
+remote_theme: "mmistakes/minimal-mistakes@4.27.3"
+minimal_mistakes_skin: "air"
+
+# Author Sidebar
+author:
+  name: "Altug Aksoy"
+  bio: "Specializing in Tropical Cyclones and Data Assimilation at CIMAS/University of Miami."
+  location: "Miami, FL"
+  links:
+    - label: "Google Scholar"
+      icon: "fas fa-fw fa-graduation-cap"
+      url: "https://scholar.google.com/citations?hl=en&user=UmBrsMEAAAAJ"
+    - label: "ORCID"
+      icon: "fab fa-fw fa-orcid"
+      url: "https://orcid.org/0000-0002-2335-7710"
+    - label: "GitHub"
+      icon: "fab fa-fw fa-github"
+      url: "https://github.com/hailcloud-um"
+    
+    # --- Separator & Share Section ---
+    - label: "separator-line"
+      url: "separator-line" # Matching the URL to the label makes the CSS selector very stable
+    - label: "SHARE THIS RESEARCH"
+      url: "#"
+    - label: "Share on LinkedIn"
+      icon: "fab fa-fw fa-linkedin"
+      url: "https://www.linkedin.com/sharing/share-offsite/?url=https://hailcloud-um.github.io/logistic_map/"
+    - label: "Share on X"
+      icon: "fab fa-fw fa-x-twitter"
+      url: "https://twitter.com/intent/tweet?text=Exploring Chaos and Predictability with the Logistic Map Simulator:&url=https://hailcloud-um.github.io/logistic_map/"
+    - label: "Share on Facebook"
+      icon: "fab fa-fw fa-facebook"
+      url: "https://www.facebook.com/sharer/sharer.php?u=https://hailcloud-um.github.io/logistic_map/"
+    - label: "Share on Reddit"
+      icon: "fab fa-fw fa-reddit"
+      url: "https://www.reddit.com/submit?url=https://hailcloud-um.github.io/logistic_map/&title=Chaos and Predictability: The Logistic Map Explorer"
+    - label: "Share via Email"
+      icon: "fas fa-fw fa-envelope"
+      url: "mailto:?subject=Chaos and Predictability Research&body=Check out this interactive research on the Logistic Map: https://hailcloud-um.github.io/logistic_map/"
+
+# Plugins required by Minimal Mistakes
+plugins:
+  - jekyll-remote-theme
+  - jekyll-include-cache

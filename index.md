@@ -1,23 +1,17 @@
 ---
-layout: default
-title: Logistic Map Simulator & Research
+layout: home
+author_profile: true
+permalink: /
+title: "Altug Aksoy, Ph.D."
+excerpt: "Atmospheric Scientist | Tropical Cyclones | Data Assimilation"
 ---
 
-<script type="text/javascript" async
-  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
-</script>
+Welcome to my research portal. I am an **Atmospheric Scientist** specializing in **Tropical Cyclones** and **Data Assimilation** at the University of Miami (CIMAS) and NOAA/AOML Hurricane Research Division. 
 
-# Welcome to the Logistic Map Explorer
+My work focuses on enhancing the predictability of extreme weather systems through high-resolution data integration and the study of non-linear dynamical systems.
 
-This site serves as the interactive companion to my research in **Chaos and Predictability**. 
+### Research Portfolios
 
-### Understanding the Logistic Map
-The logistic map is a discrete-time demographic model often cited as an archetypal example of how complex, chaotic behavior can arise from very simple non-linear dynamical equations:
+* **[Logistic Map & Chaos](/logistic-map/)**: An interactive look at discrete-time demographic models and the transition to chaotic behavior.
 
-$$x_{i+1} = r x_i (1 - x_i)$$
-
-### Interactive Simulator
-I have developed a specialized simulator to explore these dynamics.
-* **[Launch the Live App](https://logistic-map.streamlit.app/)**: You can play around with the full app following this link.
-
-* **[Research Paper](https://doi.org/10.1063/5.0181705)**: You can read the full scientific details in my *Chaos* publication.
+* **Hurricane Data Projects**: Standardizing hurricane observation datasets from NOAA and Air Force Reserve instruments (Coming Soon).

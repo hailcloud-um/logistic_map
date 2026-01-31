@@ -1,0 +1,7 @@
+main:
+  - title: "Home"
+    url: /
+  - title: "Logistic Map"
+    url: /logistic-map/
+  - title: "Chaos Theory"
+    url: /chaos/
