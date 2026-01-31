@@ -73,5 +73,8 @@ header:
 * **Aksoy, A.**, F. Zhang, and J. W. Nielsen-Gammon, 2006: Ensemble-based simultaneous state and parameter estimation with MM5. *Geophysical Research Letters*, **33**, L12801.
 * Zhang, F., Z. Meng, and **A. Aksoy**, 2006: Tests of an ensemble Kalman filter for mesoscale and regional-scale data assimilation. Part I: Perfect model experiments. *Monthly Weather Review*, **134**, 722-736.
 
+---
+
+[← Back to Aksoy Research Home](/)
 ### 2005
 * **Aksoy, A.**, F. Zhang, J. W. Nielsen-Gammon, and C. C. Epifanio, 2005: Ensemble-based data assimilation for thermally forced circulations. *Journal of Geophysical Research*, **110**, D16105.
