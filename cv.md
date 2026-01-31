@@ -57,7 +57,5 @@ header:
 * **Editor’s Award**, AMS Monthly Weather Review (2011)
 
 ---
-
 ### [View Full List of Publications](/publications/)
-
 [← Back to Aksoy Research Home](/)
