@@ -1,12 +1,13 @@
 ---
 layout: single
-title: "<span style='color: white;'>Logistic Map Simulator</span>"
-excerpt: "<span style='color: white;'>Exploring the Boundaries of Chaos and Predictability</span>"
+title: "Logistic Map Simulator"
+excerpt: "Exploring the Boundaries of Chaos and Predictability"
 author_profile: true
-permalink: /logistic-map/
+permalink: /
 header:
   overlay_color: "#000"
   overlay_filter: 0.1
+  overlay_image: /assets/images/transparent.png # This forces the title to render
 ---
 
 ### Interactive Logistic Map Simulator
