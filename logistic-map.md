@@ -1,5 +1,6 @@
 ---
 layout: single
+title: "Logistic Map Simulator"
 author_profile: true
 permalink: /logistic-map/
 header:
