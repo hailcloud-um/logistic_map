@@ -59,3 +59,5 @@ header:
 ---
 
 ### [View Full List of Publications](/publications/)
+
+[← Back to Aksoy Research Home](/)
