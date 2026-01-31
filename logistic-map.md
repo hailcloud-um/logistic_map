@@ -1,7 +1,7 @@
 ---
 layout: single
 author_profile: true
-permalink: /logistic-map
+permalink: /logistic-map/
 header:
   overlay_color: "#5e616c"
   overlay_filter: 0.5
