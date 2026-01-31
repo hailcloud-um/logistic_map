@@ -3,16 +3,11 @@ layout: single
 title: "Logistic Map Simulator"
 author_profile: true
 permalink: /logistic-map/
-breadcrumbs: true
 header:
-  overlay_color: "#5e616c"
+  overlay_color: "#000" # Pure black for that "ribbon" look
   overlay_filter: 0.5
+  caption: "Exploring the Boundaries of Chaos and Predictability"
 ---
-
-<div style="text-align: center; color: white; margin-top: -125px; margin-bottom: 60px; position: relative; z-index: 10;">
-  <h1 style="font-size: 2.0em; border-bottom: none; color: white; margin-bottom: 5px; line-height: 1.2;">Logistic Map Simulator</h1>
-  <p style="font-size: 1.0em; opacity: 0.9; font-style: italic;">Exploring the Boundaries of Chaos and Predictability</p>
-</div>
 
 ### Interactive Logistic Map Simulator
 
