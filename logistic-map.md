@@ -3,6 +3,7 @@ layout: single
 title: "Logistic Map Simulator"
 author_profile: true
 permalink: /logistic-map/
+breadcrumbs: true
 header:
   overlay_color: "#5e616c"
   overlay_filter: 0.5
