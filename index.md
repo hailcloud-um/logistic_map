@@ -1,6 +1,6 @@
 ---
 layout: single
-title: "Altug Aksoy Research Main Page"
+title: "<span style='color: white;'>Altug Aksoy Research Main Page</span>"
 excerpt: "Atmospheric Science, Tropical Cyclones, Data Assimilation, and Predictability"
 author_profile: true
 permalink: /
