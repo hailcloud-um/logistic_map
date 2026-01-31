@@ -1,9 +1,11 @@
 ---
-layout: home
+layout: single # Change this from 'home' to 'single'
 author_profile: true
 permalink: /
-title: "Altug Aksoy, Ph.D."
-excerpt: "Atmospheric Scientist | Tropical Cyclones | Data Assimilation"
+title: "Altug Aksoy's Research Main Page"
+header:
+  overlay_color: "#000"
+  overlay_filter: 0.5
 ---
 
 Welcome to my research portal. I am an **Atmospheric Scientist** specializing in **Tropical Cyclones** and **Data Assimilation** at the University of Miami (CIMAS) and NOAA/AOML Hurricane Research Division. 
