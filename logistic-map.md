@@ -1,12 +1,12 @@
 ---
 layout: single
-title: "Logistic Map Simulator"
-excerpt: "Exploring the Boundaries of Chaos and Predictability"
+title: "<span style='color: white;'>Logistic Map Simulator</span>"
+excerpt: "<span style='color: white;'>Exploring the Boundaries of Chaos and Predictability</span>"
 author_profile: true
 permalink: /logistic-map/
 header:
   overlay_color: "#000"
-  overlay_filter: 0.6
+  overlay_filter: 0.1
 ---
 
 ### Interactive Logistic Map Simulator
