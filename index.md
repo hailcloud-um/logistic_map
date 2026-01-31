@@ -1,13 +1,14 @@
 ---
 layout: single
-title: "<span style='color: white;'>Altug Aksoy Research Main Page</span>"
+title: "Altug Aksoy Research Main Page"
 excerpt: "Atmospheric Science, Tropical Cyclones, Data Assimilation, and Predictability"
 author_profile: true
 permalink: /
 header:
   overlay_color: "#000"
   overlay_filter: 0.1
-  overlay_image: /assets/images/transparent.png # This forces the title to render
+  # This line "tricks" the theme into rendering the full title/excerpt stack
+  overlay_image: https://raw.githubusercontent.com/mmistakes/minimal-mistakes/master/assets/images/header-bg.jpg
 ---
 
 Welcome to my research portal. I am an **Atmospheric Scientist** specializing in **Tropical Cyclones** and **Data Assimilation** at the University of Miami (CIMAS) and NOAA/AOML Hurricane Research Division. 
