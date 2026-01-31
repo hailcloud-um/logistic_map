@@ -1,9 +1,0 @@
-main:
-  - title: "Home"
-    url: /
-  - title: "Curriculum Vitae"
-    url: /cv/
-  - title: "Publications"
-    url: /publications/
-  - title: "Logistic Map"
-    url: /logistic-map/
